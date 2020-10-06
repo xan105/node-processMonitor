@@ -1,0 +1,8 @@
+﻿  processMonitor.cpp
+     Création de la bibliothèque D:\Desktop\node-win-process-monitor\lib\src\x64\Release\processMonitor.lib et de l'objet D:\Desktop\node-win-process-monitor\lib\src\x64\Release\processMonitor.exp
+  Génération de code en cours
+  3 of 186 functions ( 1.6%) were compiled, the rest were copied from previous compilation.
+    0 functions were new in current compilation
+    0 functions had inline decision re-evaluated but remain unchanged
+  Fin de la génération du code
+  processMonitor.vcxproj -> D:\Desktop\node-win-process-monitor\lib\src\x64\Release\processMonitor.dll

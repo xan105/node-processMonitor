@@ -1,0 +1,51 @@
+{
+  "name": "@xan105/processMonitor",
+  "version": "1.0.0",
+  "description": "Monitor process Creation/Deletion events via WMI (WQL)",
+  "type": "module",
+  "main": "processMonitor.cjs",
+  "exports": {
+    "import": "./esm.mjs",
+    "require": "./processMonitor.cjs"
+  },
+  "os": [
+    "win32"
+  ],
+  "engines": {
+    "node": ">=0.14"
+  },
+  "scripts": {
+    "lint": "npx eslint --ignore-path .gitignore ./**/*.{cjs,mjs}"
+  },
+  "keywords": [
+    "windows",
+    "wmi",
+    "wql",
+    "process",
+    "monitor",
+    "InstanceOperationEvent",
+    "InstanceCreationEvent",
+    "InstanceDeletionEvent"
+  ],
+  "author": {
+    "name": "Anthony Beaumont",
+    "email": "dev.xan105@outlook.be",
+    "url": "https://xan105.com/"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/xan105/node-processMonitor.git"
+  },
+  "bugs": {
+    "url": "https://github.com/xan105/node-processMonitor/issues"
+  },
+  "homepage": "https://github.com/xan105/node-processMonitor#readme",
+  "dependencies": {
+    "ffi-napi": "^3.0.1"
+  },
+  "devDependencies": {
+    "eslint": "^7.6.0",
+    "powertoast": "^1.2.1"
+  }
+}

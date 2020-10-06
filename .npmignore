@@ -1,0 +1,4 @@
+.github/
+lib/src/
+test/
+.eslintrc.json
