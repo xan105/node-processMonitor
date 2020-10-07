@@ -54,7 +54,7 @@ const WQL = {
       return new Promise((resolve,reject) => {
       
         const options = {
-          filterWindowsNoise: option.filterWindowsNoise ?? true,
+          filterWindowsNoise: option.filterWindowsNoise || false,
           creation: option.creation ?? true,
           deletion: option.deletion ?? true
         };
