@@ -24,7 +24,7 @@ SOFTWARE.
 
 #include "stdafx.h" // vs2017 use "pch.h" for vs2019
 #include "eventsink.h"
-
+#include <vector>
 
 typedef void(__stdcall Callback)(char const * event, char const * process, char const * handle);
 
@@ -45,6 +45,37 @@ private:
 		"AND NOT TargetInstance.ExecutablePath LIKE '%Windows\\\\SysWOW64%'"
 		"AND TargetInstance.Name != 'FileCoAuth.exe'" //OneDrive
 	);
+
+	vector<string> explode(const string &delimiter, const string &str)
+	{
+		vector<string> arr;
+
+		int strleng = str.length();
+		int delleng = delimiter.length();
+		if (delleng == 0)
+			return arr;//no change
+
+		int i = 0;
+		int k = 0;
+		while (i < strleng)
+		{
+			int j = 0;
+			while (i + j < strleng && j < delleng && str[i + j] == delimiter[j])
+				j++;
+			if (j == delleng)//found delimiter
+			{
+				arr.push_back(str.substr(k, i - k));
+				i += delleng;
+				k = i;
+			}
+			else
+			{
+				i++;
+			}
+		}
+		arr.push_back(str.substr(k, i - k));
+		return arr;
+	}
 
 public:
 
@@ -161,8 +192,8 @@ public:
 		pStubUnk->QueryInterface(IID_IWbemObjectSink,
 			(void **)&this->pStubSink);
 	}
-
-	bool queryAsync_InstanceOperationEvent(bool filterWindowsNoise)
+	
+	bool queryAsync_InstanceOperationEvent(bool filterWindowsNoise, std::string custom_filter = "")
 	{
 		_bstr_t WQL_Query = ( //WQL query for __InstanceOperationEvent (Creation + Deletion)
 			"SELECT * "
@@ -172,6 +203,13 @@ public:
 		
 		if (filterWindowsNoise) {
 			WQL_Query = WQL_Query + this->WQL_filterWindowsNoise;
+		}
+
+		if (custom_filter.length() > 0) {
+			vector<string> v = this->explode(",", custom_filter);
+			for (int i = 0; i < v.size(); i++) {
+				WQL_Query = WQL_Query + "AND TargetInstance.Name != '" + v[i].c_str() + "'";
+			}	
 		}
 		
 		this->hres = this->pSvc->ExecNotificationQueryAsync(
@@ -192,7 +230,7 @@ public:
 		}
 	}
 	
-	bool queryAsync_InstanceCreationEvent(bool filterWindowsNoise) 
+	bool queryAsync_InstanceCreationEvent(bool filterWindowsNoise, std::string custom_filter = "")
 	{
 		_bstr_t WQL_Query = ( //WQL query for InstanceCreationEvent
 			"SELECT * "
@@ -202,6 +240,13 @@ public:
 
 		if (filterWindowsNoise) {
 			WQL_Query = WQL_Query + this->WQL_filterWindowsNoise;
+		}
+
+		if (custom_filter.length() > 0) {
+			vector<string> v = this->explode(",", custom_filter);
+			for (int i = 0; i < v.size(); i++) {
+				WQL_Query = WQL_Query + "AND TargetInstance.Name != '" + v[i].c_str() + "'";
+			}
 		}
 
 		this->hres = this->pSvc->ExecNotificationQueryAsync(
@@ -222,7 +267,7 @@ public:
 		}
 	}
 
-	bool queryAsync_InstanceDeletionEvent(bool filterWindowsNoise)
+	bool queryAsync_InstanceDeletionEvent(bool filterWindowsNoise, std::string custom_filter = "")
 	{
 		_bstr_t WQL_Query = ( //WQL query for InstanceDeletionEvent
 			"SELECT * "
@@ -232,6 +277,13 @@ public:
 
 		if (filterWindowsNoise) {
 			WQL_Query = WQL_Query + this->WQL_filterWindowsNoise;
+		}
+
+		if (custom_filter.length() > 0) {
+			vector<string> v = this->explode(",", custom_filter);
+			for (int i = 0; i < v.size(); i++) {
+				WQL_Query = WQL_Query + "AND TargetInstance.Name != '" + v[i].c_str() + "'";
+			}
 		}
 
 		this->hres = this->pSvc->ExecNotificationQueryAsync(
@@ -286,20 +338,20 @@ extern "C"
 		monitor.cancel();
 		monitor.close();
 	}
-	
-	APICALL bool getInstanceOperationEvent(bool filterWindowsNoise)
+
+	APICALL bool getInstanceOperationEvent(bool filterWindowsNoise, char const * custom_filter)
 	{
-		return monitor.queryAsync_InstanceOperationEvent(filterWindowsNoise);
+		return monitor.queryAsync_InstanceOperationEvent(filterWindowsNoise, custom_filter);
 	}
 	
-	APICALL bool getInstanceCreationEvent(bool filterWindowsNoise)
+	APICALL bool getInstanceCreationEvent(bool filterWindowsNoise, char const * custom_filter)
 	{
-		return monitor.queryAsync_InstanceCreationEvent(filterWindowsNoise);
+		return monitor.queryAsync_InstanceCreationEvent(filterWindowsNoise, custom_filter);
 	}
 
-	APICALL bool getInstanceDeletionEvent(bool filterWindowsNoise)
+	APICALL bool getInstanceDeletionEvent(bool filterWindowsNoise, char const * custom_filter)
 	{
-		return monitor.queryAsync_InstanceDeletionEvent(filterWindowsNoise);
+		return monitor.queryAsync_InstanceDeletionEvent(filterWindowsNoise, custom_filter);
 	}
 
 	APICALL void setCallback(Callback* callbackPtr) {

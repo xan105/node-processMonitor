@@ -1,12 +1,12 @@
 {
-  "name": "@xan105/processMonitor",
+  "name": "wql-process-monitor",
   "version": "1.0.0",
-  "description": "Monitor process Creation/Deletion events via WMI (WQL)",
+  "description": "Monitor process creation/deletion events via WMI (WQL)",
   "type": "module",
-  "main": "processMonitor.cjs",
+  "main": "./lib/processMonitor.cjs",
   "exports": {
-    "import": "./esm.mjs",
-    "require": "./processMonitor.cjs"
+    "import": "./lib/esm.mjs",
+    "require": "./lib/processMonitor.cjs"
   },
   "os": [
     "win32"
@@ -45,7 +45,6 @@
     "ffi-napi": "^3.0.1"
   },
   "devDependencies": {
-    "eslint": "^7.6.0",
-    "powertoast": "^1.2.1"
+    "eslint": "^7.6.0"
   }
 }
