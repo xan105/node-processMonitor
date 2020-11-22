@@ -1,7 +1,7 @@
 {
   "name": "wql-process-monitor",
   "version": "1.0.0",
-  "description": "Monitor process creation/deletion events via WMI (WQL)",
+  "description": "Monitor Windows process creation/deletion events via WMI (WQL)",
   "type": "module",
   "main": "./lib/processMonitor.cjs",
   "exports": {
