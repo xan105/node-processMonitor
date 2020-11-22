@@ -6,7 +6,7 @@ Example
 ```js
 const WQL = require('wql-process-monitor');
 //or esm 
-import * from 'wql-process-monitor';
+import * as WQL from 'wql-process-monitor';
 
 WQL.createEventSink(); //init the event sink 
 const processMonitor = WQL.subscribe(); //subscribe to all events
@@ -36,7 +36,7 @@ Installation
 
 `npm install wql-process-monitor`
 
-Prequisites: C/C++ build tools (Visual Studio) and Python 2.7 (node-gyp) in order to build [ffi-napi](https://www.npmjs.com/package/ffi-napi).
+_Prequisites: C/C++ build tools (Visual Studio) and Python 2.7 (node-gyp) in order to build [ffi-napi](https://www.npmjs.com/package/ffi-napi)._
 
 ⚠️ NB: Don't use this with Node.js 14 as ffi-napi (^3.0.1) suffers from instability (random v8 crash) with it.<br/>
 cf: https://github.com/node-ffi-napi/node-ffi-napi/issues/97 
@@ -46,10 +46,12 @@ API
 
 > Promises are available for all methods under the .promises obj.
 
-eg:
-const WQL = require('wql-process-monitor');<br/>
-WQL.createEventSink(); //sync<br/>
-WQL.promises.createEventSink(); //promise<br/>
+```js
+//Example
+const WQL = require('wql-process-monitor');
+WQL.createEventSink(); //sync
+WQL.promises.createEventSink(); //promise
+```
 
 Before explaining the API let's review what you need to do :
 
@@ -62,25 +64,30 @@ Before explaining the API let's review what you need to do :
 See below for details.
 
 ### createEventSink(void) : void
+
 Initialize the event sink.<br/>
 This is required to do before you can subscribe to any events.
 
 ### closeEventSink(void) : void
+
 If you need to close the event sink.<br/>
 There is no 'un-subscribe' thing to do prior to closing the sink. Just close it.<br/>
 You shouldn't need to have to bother with this but it's here just in case.
 
-### subscribe([obj option]) : <EventEmitter>
+### subscribe([obj option]) : EventEmitter
 
 Options:
 
 - creation | bool (default true)
+
 	Subscribe to the creation event
 	
 - deletion | bool (default true)
+
 	Subscribe to the deletionn event
 	
 - filterWindowsNoise | bool (default false)
+
 	Exclude events originating from System32 and SysWOW64 Windows folder as well as integrated OneDrive `FileCoAuth.exe`.<br/>
 	Ex: cmd.exe, powershell.exe, svchost.exe, RuntimeBroker.exe, and others Windows processes.<br/>
 	
@@ -89,6 +96,7 @@ Options:
 	Both `consent.exe` and the related elevated process will be excluded.<br/>
 
 - filter | array of string (default none)
+
 	Custom list of process to exclude.<br/>
 	eg: ["firefox.exe","chrome.exe",...]<br/>
 	
