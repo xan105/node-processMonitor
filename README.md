@@ -1,4 +1,4 @@
-Monitor process creation/deletion events via WMI (WQL) in Windows.
+Monitor Windows process creation/deletion events via WMI (WQL) in Node.js
 
 Example
 =======
@@ -38,9 +38,6 @@ Installation
 
 _Prequisites: C/C++ build tools (Visual Studio) and Python 2.7 (node-gyp) in order to build [ffi-napi](https://www.npmjs.com/package/ffi-napi)._
 
-⚠️ NB: Don't use this with Node.js 14 as ffi-napi (^3.0.1) suffers from instability (random v8 crash) with it.<br/>
-cf: https://github.com/node-ffi-napi/node-ffi-napi/issues/97 
-
 API
 ===
 
@@ -72,7 +69,7 @@ This is required to do before you can subscribe to any events.
 
 If you need to close the event sink.<br/>
 There is no 'un-subscribe' thing to do prior to closing the sink. Just close it.<br/>
-You shouldn't need to have to bother with this but it's here just in case.
+You shouldn't have to bother with this but it's here in case you need it.
 
 ### subscribe([obj option]) : EventEmitter
 
