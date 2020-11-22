@@ -15,7 +15,8 @@
     "node": ">=0.12"
   },
   "scripts": {
-    "lint": "npx eslint --ignore-path .gitignore ./**/*.{cjs,mjs}"
+    "lint": "npx eslint --ignore-path .gitignore ./**/*.{cjs,mjs}",
+    "pretty": "npx prettier --write ./**/*.{cjs,mjs,js}"
   },
   "keywords": [
     "windows",
@@ -45,6 +46,8 @@
     "ffi-napi": "^3.0.1"
   },
   "devDependencies": {
-    "eslint": "^7.6.0"
+    "eslint": "^7.6.0",
+    "eslint-config-prettier": "^6.15.0",
+    "prettier": "2.2.0"
   }
 }
