@@ -107,7 +107,7 @@ Return an event emitter:
 .on("deletion", (process,pid) => {})
 ```
 
-Where process is the process name _eg: "firefox.exe"_, pid its process identifier and filepath its file location path ( if available* )
+Where process is the process name _eg: "firefox.exe"_, pid its process identifier and filepath its file location path ( if available** )
 
-* filepath is only available in "creation" (well it doesn't make sense to open a deleted process for its information ^^)
+** filepath is only available in "creation" (well it doesn't make sense to open a deleted process for its information ^^)
 and will sometimes be empty because of permission to access a process information and in the same fashion 32bits can not access 64 bits.
