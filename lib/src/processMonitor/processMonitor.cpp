@@ -26,7 +26,7 @@ SOFTWARE.
 #include "eventsink.h"
 #include <vector>
 
-typedef void(__stdcall Callback)(char const * event, char const * process, char const * handle);
+typedef void(__stdcall Callback)(char const * event, char const * process, char const * handle, char const * filepath);
 
 //cf: https://docs.microsoft.com/en-us/windows/win32/wmisdk/example--receiving-event-notifications-through-wmi-
 class WQL

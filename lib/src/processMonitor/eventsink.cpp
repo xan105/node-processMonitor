@@ -25,7 +25,7 @@ SOFTWARE.
 #include "stdafx.h" // vs2017 use "pch.h" for vs2019
 #include "eventsink.h"
 
-typedef void(__stdcall Callback)(char const * event, char const * process, char const * handle);
+typedef void(__stdcall Callback)(char const * event, char const * process, char const * handle, char const * filepath);
 extern Callback* callback;
 
 ULONG EventSink::AddRef()
@@ -94,19 +94,19 @@ HRESULT EventSink::Indicate(long lObjectCount, IWbemClassObject **apObjArray)
 				hr = str->QueryInterface(IID_IWbemClassObject, reinterpret_cast<void**>(&apObjArray[i]));
 				if (SUCCEEDED(hr))
 				{
+					DWORD pid;
 					_bstr_t process;
 					_bstr_t handle;
+					std::string filepath;
 					
 					_variant_t cn;
 					hr = apObjArray[i]->Get(L"Name", 0, &cn, NULL, NULL);
 					if (SUCCEEDED(hr))
 					{
-
 						if ((cn.vt == VT_NULL) || (cn.vt == VT_EMPTY))
 							process = ((cn.vt == VT_NULL) ? "NULL" : "EMPTY");
-						else 
+						else
 							process = cn.bstrVal;
-
 					}
 					VariantClear(&cn);
 
@@ -115,11 +115,36 @@ HRESULT EventSink::Indicate(long lObjectCount, IWbemClassObject **apObjArray)
 					{
 						if ((cn.vt == VT_NULL) || (cn.vt == VT_EMPTY))
 							handle = ((cn.vt == VT_NULL) ? "NULL" : "EMPTY");
-						else
+						else {
+							pid = cn;
 							handle = cn.bstrVal;
+						}
 					}
 					VariantClear(&cn);
-					callback(event.c_str(),process,handle);
+
+					if (event == "creation") { //OpenProcess() a deleted process doesn't make much sense
+						HANDLE processHandle = NULL;
+						DWORD Size = MAX_PATH;
+						wchar_t processpath[MAX_PATH];
+						std::wstring sprocesspath;
+
+						processHandle = OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, FALSE, pid);
+						if (processHandle != NULL) {
+							if (QueryFullProcessImageName(processHandle, 0, processpath, &Size)) {
+								
+								sprocesspath = processpath;
+								//wstring to string
+								int size = WideCharToMultiByte(CP_UTF8, WC_ERR_INVALID_CHARS, &sprocesspath[0], sprocesspath.size(), NULL, 0, NULL, NULL);
+								filepath = std::string(size, 0);
+								WideCharToMultiByte(CP_UTF8, WC_ERR_INVALID_CHARS, &sprocesspath[0], sprocesspath.size(), &filepath[0], size, NULL, NULL);
+
+							}
+							CloseHandle(processHandle);
+						}
+
+					}
+					callback(event.c_str(), process, handle, filepath.c_str());
+
 				}
 			}
 			VariantClear(&vtProp);

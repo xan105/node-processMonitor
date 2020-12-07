@@ -1,13 +1,13 @@
-﻿  stdafx.cpp
-  dllmain.cpp
-  eventsink.cpp
+﻿  eventsink.cpp
+d:\documents\github\xan105\node-processmonitor\lib\src\processmonitor\eventsink.cpp(137): warning C4267: 'argument' : conversion de 'size_t' en 'int', perte possible de données
+d:\documents\github\xan105\node-processmonitor\lib\src\processmonitor\eventsink.cpp(139): warning C4267: 'argument' : conversion de 'size_t' en 'int', perte possible de données
   processMonitor.cpp
 d:\documents\github\xan105\node-processmonitor\lib\src\processmonitor\processmonitor.cpp(53): warning C4267: 'initialisation' : conversion de 'size_t' en 'int', perte possible de données
 d:\documents\github\xan105\node-processmonitor\lib\src\processmonitor\processmonitor.cpp(54): warning C4267: 'initialisation' : conversion de 'size_t' en 'int', perte possible de données
      Création de la bibliothèque D:\Documents\GitHub\xan105\node-processMonitor\lib\src\x64\Release\processMonitor.lib et de l'objet D:\Documents\GitHub\xan105\node-processMonitor\lib\src\x64\Release\processMonitor.exp
   Génération de code en cours
-  281 of 282 functions (99.6%) were compiled, the rest were copied from previous compilation.
-    101 functions were new in current compilation
-    0 functions had inline decision re-evaluated but remain unchanged
+  29 of 303 functions ( 9.6%) were compiled, the rest were copied from previous compilation.
+    21 functions were new in current compilation
+    40 functions had inline decision re-evaluated but remain unchanged
   Fin de la génération du code
   processMonitor.vcxproj -> D:\Documents\GitHub\xan105\node-processMonitor\lib\src\x64\Release\processMonitor.dll
