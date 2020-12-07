@@ -9,9 +9,7 @@ const processMonitor = WQL.subscribe({ filterWindowsNoise: false });
 console.log("subscribe");
 
 processMonitor.on("creation", (process, pid, filepath) => {
-  console.log(
-    `\x1b[32mcreation\x1b[0m: ${process}::${pid} [\x1b[90m${filepath}\x1b[0m]`
-  );
+  console.log(`\x1b[32mcreation\x1b[0m: ${process}::${pid} [\x1b[90m${filepath}\x1b[0m]`);
 });
 
 processMonitor.on("deletion", (process, pid) => {
