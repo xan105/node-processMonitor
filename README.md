@@ -15,11 +15,11 @@ const processMonitor = WQL.subscribe(); //subscribe to all events
 await WQL.promises.createEventSink();
 const processMonitor = await WQL.promises.subscribe();
 
-processMonitor.on("creation", (process,pid,filepath) => {
+processMonitor.on("creation", ([process,pid,filepath]) => {
   console.log(`creation: ${process}::${pid} ["${filepath}"]`);
 });
 
-processMonitor.on("deletion",(process,pid) => {
+processMonitor.on("deletion",([process,pid]) => {
   console.log(`deletion: ${process}::${pid}`);
 });
 
@@ -100,11 +100,11 @@ Options:
 On failure `EWQLQUERYFAILED` the event sink will be closed.<br/>
 If you want to try again to subscribe you will need to re-open the event sink with `createEventSink`
 
-Return an event emitter:
+Return a non-blocking async event emitter ([emittery](https://github.com/sindresorhus/emittery)):
 
 ```js
-.on("creation", (process,pid,filepath) => {})
-.on("deletion", (process,pid) => {})
+.on("creation", ([process,pid,filepath]) => {})
+.on("deletion", ([process,pid]) => {})
 ```
 
 Where process is the process name _eg: "firefox.exe"_, pid its process identifier and filepath its file location path ( if available** )
