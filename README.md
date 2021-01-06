@@ -89,7 +89,7 @@ Options:
 	Ex: cmd.exe, powershell.exe, svchost.exe, RuntimeBroker.exe, and others Windows processes.<br/>
 	
 	⚠️ NB: Using this will prevent you to catch any elevated process event.<br/>
-	Unless you are also elevated. This is a permission issue (See #2).<br/>
+	Unless you are also elevated. This is a permission issue (See [#2](https://github.com/xan105/node-processMonitor/issues/2)).<br/>
 	_You can implement your own filter on top of the event emitter result instead._
 
 - filterUsualProgramLocations | bool (default false)
@@ -97,7 +97,7 @@ Options:
 	Exclude events originating from Program Files, Program Files (x86), AppData local and AppData Roaming.
 	
 	⚠️ NB: Using this will prevent you to catch any elevated process event.<br/>
-	Unless you are also elevated. This is a permission issue (See #2).<br/>
+	Unless you are also elevated. This is a permission issue (See [#2](https://github.com/xan105/node-processMonitor/issues/2)).<br/>
 	_You can implement your own filter on top of the event emitter result instead._
 
 - filter | array of string (default none)
@@ -105,9 +105,9 @@ Options:
 	Custom list of process to exclude.<br/>
 	eg: ["firefox.exe","chrome.exe",...]<br/>
 	
-	NB: `There are limits to the number of AND and OR keywords that can be used in WQL queries. Large numbers of WQL keywords used in a complex query can cause WMI to return the WBEM_E_QUOTA_VIOLATION error code as an HRESULT value. The limit of WQL keywords depends on how complex the query is`
-	cf: https://docs.microsoft.com/en-us/windows/win32/wmisdk/querying-with-wql
-	If you have a huge list considered implementing your own filter on top of the event emitter result instead.
+	NB: `There are limits to the number of AND and OR keywords that can be used in WQL queries. Large numbers of WQL keywords used in a complex query can cause WMI to return the WBEM_E_QUOTA_VIOLATION error code as an HRESULT value. The limit of WQL keywords depends on how complex the query is`<br/>
+	cf: https://docs.microsoft.com/en-us/windows/win32/wmisdk/querying-with-wql<br/>
+	If you have a huge list consider implementing your own filter on top of the event emitter result instead.
 	
 On failure `ERR_WQL_QUERY_FAILED` the event sink will be closed.<br/>
 If you want to try again to subscribe you will need to re-open the event sink with `createEventSink`
