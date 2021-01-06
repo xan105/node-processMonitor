@@ -88,18 +88,26 @@ Options:
 	Exclude events originating from System32 and SysWOW64 Windows folder as well as integrated OneDrive `FileCoAuth.exe`.<br/>
 	Ex: cmd.exe, powershell.exe, svchost.exe, RuntimeBroker.exe, and others Windows processes.<br/>
 	
-	⚠️ NB: Note that this will exclude `consent.exe` which is the UAC dialog (admin rights).<br/>
-	In case a process is run with admin rights and `filterWindowsNoise` is set to `true` because of the above;<br/>
-	Both `consent.exe` and the related elevated process will be excluded.<br/>
+	⚠️ NB: Using this will prevent you to catch any elevated process event.<br/>
+	Unless you are also elevated. This is a permission issue (See #2).<br/>
+	_You can implement your own filter on top of the event emitter result instead._
 
 - filterUsualProgramLocations | bool (default false)
 
 	Exclude events originating from Program Files, Program Files (x86), AppData local and AppData Roaming.
+	
+	⚠️ NB: Using this will prevent you to catch any elevated process event.<br/>
+	Unless you are also elevated. This is a permission issue (See #2).<br/>
+	_You can implement your own filter on top of the event emitter result instead._
 
 - filter | array of string (default none)
 
 	Custom list of process to exclude.<br/>
 	eg: ["firefox.exe","chrome.exe",...]<br/>
+	
+	NB: `There are limits to the number of AND and OR keywords that can be used in WQL queries. Large numbers of WQL keywords used in a complex query can cause WMI to return the WBEM_E_QUOTA_VIOLATION error code as an HRESULT value. The limit of WQL keywords depends on how complex the query is`
+	cf: https://docs.microsoft.com/en-us/windows/win32/wmisdk/querying-with-wql
+	If you have a huge list considered implementing your own filter on top of the event emitter result instead.
 	
 On failure `ERR_WQL_QUERY_FAILED` the event sink will be closed.<br/>
 If you want to try again to subscribe you will need to re-open the event sink with `createEventSink`
