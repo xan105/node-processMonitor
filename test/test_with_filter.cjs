@@ -9,6 +9,7 @@ const filter = ["cmd.exe", "conhost.exe", "firefox.exe"];
 
 const processMonitor = WQL.subscribe({
   filterWindowsNoise: false,
+  filterUsualProgramLocations: false,
   filter: filter,
 });
 console.log("subscribe");

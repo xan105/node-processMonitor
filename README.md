@@ -92,12 +92,16 @@ Options:
 	In case a process is run with admin rights and `filterWindowsNoise` is set to `true` because of the above;<br/>
 	Both `consent.exe` and the related elevated process will be excluded.<br/>
 
+- filterUsualProgramLocations | bool (default false)
+
+	Exclude events originating from Program Files, Program Files (x86), AppData local and AppData Roaming.
+
 - filter | array of string (default none)
 
 	Custom list of process to exclude.<br/>
 	eg: ["firefox.exe","chrome.exe",...]<br/>
 	
-On failure `EWQLQUERYFAILED` the event sink will be closed.<br/>
+On failure `ERR_WQL_QUERY_FAILED` the event sink will be closed.<br/>
 If you want to try again to subscribe you will need to re-open the event sink with `createEventSink`
 
 Return a non-blocking async event emitter ([emittery](https://github.com/sindresorhus/emittery)):
