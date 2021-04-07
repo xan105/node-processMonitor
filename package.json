@@ -1,6 +1,6 @@
 {
   "name": "wql-process-monitor",
-  "version": "1.3.1",
+  "version": "1.3.2",
   "description": "Monitor Windows process creation/deletion events via WMI (WQL)",
   "type": "module",
   "main": "./lib/processMonitor.cjs",
@@ -43,8 +43,8 @@
   },
   "homepage": "https://github.com/xan105/node-processMonitor#readme",
   "dependencies": {
-    "emittery": "^0.7.2",
-    "ffi-napi": "^3.0.1"
+    "emittery": "^0.8.1",
+    "ffi-napi": "^4.0.3"
   },
   "devDependencies": {
     "eslint": "^7.6.0",
