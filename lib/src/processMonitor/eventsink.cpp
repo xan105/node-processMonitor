@@ -98,8 +98,8 @@ HRESULT EventSink::Indicate(long lObjectCount, IWbemClassObject **apObjArray)
 					_bstr_t process;
 					_bstr_t handle;
 					std::string filepath;
-					
 					_variant_t cn;
+					
 					hr = apObjArray[i]->Get(L"Name", 0, &cn, NULL, NULL);
 					if (SUCCEEDED(hr))
 					{
@@ -146,6 +146,7 @@ HRESULT EventSink::Indicate(long lObjectCount, IWbemClassObject **apObjArray)
 					callback(event.c_str(), process, handle, filepath.c_str());
 
 				}
+				str->Release();
 			}
 			VariantClear(&vtProp);
 		}
