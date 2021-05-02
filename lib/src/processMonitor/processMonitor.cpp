@@ -233,11 +233,17 @@ public:
 			vector<string> v = this->explode(",", custom_filter);
 			for (size_t i = 0; i < v.size(); i++) {
 				if(whitelist) {
-				  WQL_Query = WQL_Query + "AND TargetInstance.Name = '" + v[i].c_str() + "'";
+					if (i == 0) {
+						WQL_Query = WQL_Query + "AND ( TargetInstance.Name = '" + v[i].c_str() + "'";
+					}
+					else {
+						WQL_Query = WQL_Query + "OR TargetInstance.Name = '" + v[i].c_str() + "'";
+					}
 				} else {
 				  WQL_Query = WQL_Query + "AND TargetInstance.Name != '" + v[i].c_str() + "'";
 				}
 			}	
+			if (whitelist) WQL_Query = WQL_Query + ")";
 		}
 		
 		this->hres = this->pSvc->ExecNotificationQueryAsync(
