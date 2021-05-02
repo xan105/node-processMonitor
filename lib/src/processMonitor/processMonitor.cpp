@@ -200,7 +200,10 @@ public:
 			(void **)&this->pStubSink);
 	}
 	
-	bool queryAsync_InstanceOperationEvent(bool filterWindowsNoise, bool filterUsualProgramLocations, std::string custom_filter = "")
+	//WMI QUERY
+	//=========
+	
+	bool queryAsync_InstanceOperationEvent(bool filterWindowsNoise, bool filterUsualProgramLocations, bool whitelist, std::string custom_filter = "")
 	{
 		_bstr_t WQL_Query = ( //WQL query for __InstanceOperationEvent (Creation + Deletion)
 			"SELECT * "
@@ -219,7 +222,11 @@ public:
 		if (custom_filter.length() > 0) {
 			vector<string> v = this->explode(",", custom_filter);
 			for (size_t i = 0; i < v.size(); i++) {
-				WQL_Query = WQL_Query + "AND TargetInstance.Name != '" + v[i].c_str() + "'";
+				if(whitelist) {
+				  WQL_Query = WQL_Query + "AND TargetInstance.Name = '" + v[i].c_str() + "'";
+				} else {
+				  WQL_Query = WQL_Query + "AND TargetInstance.Name != '" + v[i].c_str() + "'";
+				}
 			}	
 		}
 		
@@ -241,7 +248,7 @@ public:
 		}
 	}
 	
-	bool queryAsync_InstanceCreationEvent(bool filterWindowsNoise, bool filterUsualProgramLocations, std::string custom_filter = "")
+	bool queryAsync_InstanceCreationEvent(bool filterWindowsNoise, bool filterUsualProgramLocations, bool whitelist, std::string custom_filter = "")
 	{
 		_bstr_t WQL_Query = ( //WQL query for InstanceCreationEvent
 			"SELECT * "
@@ -260,7 +267,11 @@ public:
 		if (custom_filter.length() > 0) {
 			vector<string> v = this->explode(",", custom_filter);
 			for (size_t i = 0; i < v.size(); i++) {
-				WQL_Query = WQL_Query + "AND TargetInstance.Name != '" + v[i].c_str() + "'";
+				if(whitelist) {
+				  WQL_Query = WQL_Query + "AND TargetInstance.Name = '" + v[i].c_str() + "'";
+				} else {
+				  WQL_Query = WQL_Query + "AND TargetInstance.Name != '" + v[i].c_str() + "'";
+				}
 			}
 		}
 
@@ -282,7 +293,7 @@ public:
 		}
 	}
 
-	bool queryAsync_InstanceDeletionEvent(bool filterWindowsNoise, bool filterUsualProgramLocations, std::string custom_filter = "")
+	bool queryAsync_InstanceDeletionEvent(bool filterWindowsNoise, bool filterUsualProgramLocations, bool whitelist, std::string custom_filter = "")
 	{
 		_bstr_t WQL_Query = ( //WQL query for InstanceDeletionEvent
 			"SELECT * "
@@ -301,7 +312,11 @@ public:
 		if (custom_filter.length() > 0) {
 			vector<string> v = this->explode(",", custom_filter);
 			for (size_t i = 0; i < v.size(); i++) {
-				WQL_Query = WQL_Query + "AND TargetInstance.Name != '" + v[i].c_str() + "'";
+				if(whitelist) {
+				  WQL_Query = WQL_Query + "AND TargetInstance.Name = '" + v[i].c_str() + "'";
+				} else {
+				  WQL_Query = WQL_Query + "AND TargetInstance.Name != '" + v[i].c_str() + "'";
+				}
 			}
 		}
 
@@ -322,6 +337,9 @@ public:
 			return true;
 		}
 	}
+
+  //end of WMI QUERY
+	//================
 
 	void cancel()
 	{
@@ -358,19 +376,19 @@ extern "C"
 		monitor.close();
 	}
 
-	APICALL bool getInstanceOperationEvent(bool filterWindowsNoise, bool filterUsualProgramLocations, char const * custom_filter)
+	APICALL bool getInstanceOperationEvent(bool filterWindowsNoise, bool filterUsualProgramLocations, bool whitelist, char const * custom_filter)
 	{
-		return monitor.queryAsync_InstanceOperationEvent(filterWindowsNoise, filterUsualProgramLocations, custom_filter);
+		return monitor.queryAsync_InstanceOperationEvent(filterWindowsNoise, filterUsualProgramLocations, whitelist, custom_filter);
 	}
 	
-	APICALL bool getInstanceCreationEvent(bool filterWindowsNoise, bool filterUsualProgramLocations, char const * custom_filter)
+	APICALL bool getInstanceCreationEvent(bool filterWindowsNoise, bool filterUsualProgramLocations, bool whitelist, char const * custom_filter)
 	{
-		return monitor.queryAsync_InstanceCreationEvent(filterWindowsNoise, filterUsualProgramLocations, custom_filter);
+		return monitor.queryAsync_InstanceCreationEvent(filterWindowsNoise, filterUsualProgramLocations, whitelist, custom_filter);
 	}
 
-	APICALL bool getInstanceDeletionEvent(bool filterWindowsNoise, bool filterUsualProgramLocations, char const * custom_filter)
+	APICALL bool getInstanceDeletionEvent(bool filterWindowsNoise, bool filterUsualProgramLocations, bool whitelist, char const * custom_filter)
 	{
-		return monitor.queryAsync_InstanceDeletionEvent(filterWindowsNoise, filterUsualProgramLocations, custom_filter);
+		return monitor.queryAsync_InstanceDeletionEvent(filterWindowsNoise, filterUsualProgramLocations, whitelist, custom_filter);
 	}
 
 	APICALL void setCallback(Callback* callbackPtr) {
