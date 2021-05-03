@@ -8,10 +8,11 @@ const WQL = require('wql-process-monitor');
 //or esm 
 import * as WQL from 'wql-process-monitor';
 
+//Sync
 WQL.createEventSink(); //init the event sink 
 const processMonitor = WQL.subscribe(); //subscribe to all events
 
-// If you need promise
+//Promise
 await WQL.promises.createEventSink();
 const processMonitor = await WQL.promises.subscribe();
 
@@ -31,12 +32,29 @@ This is just as an example so node.js doesn't exit directly.
 setInterval(()=>{}, 1000 * 60 * 60);
 ```
 
+Do something when a specific process is started :
+
+```js
+const processMonitor = await WQL.promises.subscribe({
+  creation: true,
+  deletion: false,
+  filter: ["firefox.exe"],
+  whitelist: true
+});
+
+processMonitor.on("creation", ([process,pid,filepath]) => {
+  console.log(`creation: ${process}::${pid} ["${filepath}"]`);
+});
+
+```
+
+
 Installation
 ============
 
 `npm install wql-process-monitor`
 
-_Prequisites: C/C++ build tools (Visual Studio) and Python 2.7 (node-gyp) in order to build [ffi-napi](https://www.npmjs.com/package/ffi-napi)._
+_Prequisites: C/C++ build tools (Visual Studio) and Python ~2.7~ 3.x (node-gyp) in order to build [node-ffi-napi](https://www.npmjs.com/package/ffi-napi)._
 
 API
 ===
@@ -108,11 +126,17 @@ Options:
 	NB: `There are limits to the number of AND and OR keywords that can be used in WQL queries. Large numbers of WQL keywords used in a complex query can cause WMI to return the WBEM_E_QUOTA_VIOLATION error code as an HRESULT value. The limit of WQL keywords depends on how complex the query is`<br/>
 	cf: https://docs.microsoft.com/en-us/windows/win32/wmisdk/querying-with-wql<br/>
 	If you have a huge list consider implementing your own filter on top of the event emitter result instead.
-	
-On failure `ERR_WQL_QUERY_FAILED` the event sink will be closed.<br/>
-If you want to try again to subscribe you will need to re-open the event sink with `createEventSink`
 
-Return a non-blocking async event emitter ([emittery](https://github.com/sindresorhus/emittery)):
+- whitelist | bool (default false)
+
+	Use `filter` option as a whitelist.<br/>
+	`filterWindowsNoise` / `filterUsualProgramLocations` can still be used.<br/>
+	Previously mentioned limitation(s) still apply.
+	
+❌ On failure `ERR_WQL_QUERY_FAILED` the event sink will be closed.<br/>
+If you want to try again to subscribe you will need to re-open the event sink with `createEventSink`.
+
+✔️ Return a non-blocking async event emitter ([emittery](https://github.com/sindresorhus/emittery)):
 
 ```js
 .on("creation", ([process,pid,filepath]) => {})
