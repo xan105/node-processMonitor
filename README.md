@@ -133,10 +133,10 @@ Options:
 	`filterWindowsNoise` / `filterUsualProgramLocations` can still be used.<br/>
 	Previously mentioned limitation(s) still apply.
 	
-On failure `ERR_WQL_QUERY_FAILED` the event sink will be closed.<br/>
+❌ On failure `ERR_WQL_QUERY_FAILED` the event sink will be closed.<br/>
 If you want to try again to subscribe you will need to re-open the event sink with `createEventSink`.
 
-💡 Return a non-blocking async event emitter ([emittery](https://github.com/sindresorhus/emittery)):
+✔️ Return a non-blocking async event emitter ([emittery](https://github.com/sindresorhus/emittery)):
 
 ```js
 .on("creation", ([process,pid,filepath]) => {})
