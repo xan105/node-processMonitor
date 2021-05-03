@@ -8,10 +8,11 @@ const WQL = require('wql-process-monitor');
 //or esm 
 import * as WQL from 'wql-process-monitor';
 
+//Sync
 WQL.createEventSink(); //init the event sink 
 const processMonitor = WQL.subscribe(); //subscribe to all events
 
-// If you need promise
+//Promise
 await WQL.promises.createEventSink();
 const processMonitor = await WQL.promises.subscribe();
 
@@ -30,6 +31,23 @@ This is just as an example so node.js doesn't exit directly.
 */
 setInterval(()=>{}, 1000 * 60 * 60);
 ```
+
+Do something when a specific process is started :
+
+```js
+const processMonitor = await WQL.promises.subscribe({
+  creation: true,
+  deletion: false,
+  filter: ["firefox.exe"],
+  whitelist: true
+});
+
+processMonitor.on("creation", ([process,pid,filepath]) => {
+  console.log(`creation: ${process}::${pid} ["${filepath}"]`);
+});
+
+```
+
 
 Installation
 ============
@@ -118,7 +136,7 @@ Options:
 On failure `ERR_WQL_QUERY_FAILED` the event sink will be closed.<br/>
 If you want to try again to subscribe you will need to re-open the event sink with `createEventSink`.
 
-Return a non-blocking async event emitter ([emittery](https://github.com/sindresorhus/emittery)):
+💡 Return a non-blocking async event emitter ([emittery](https://github.com/sindresorhus/emittery)):
 
 ```js
 .on("creation", ([process,pid,filepath]) => {})
