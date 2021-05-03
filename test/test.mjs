@@ -1,15 +1,14 @@
-import * as WQL from '../lib/esm.mjs';
+import { promises as WQL } from "../lib/esm.mjs";
 
 (async () => {
-
-  await WQL.promises.createEventSink();
+  await WQL.createEventSink();
   console.log("createEventSink");
 
-  const processMonitor = await WQL.promises.subscribe({
+  const processMonitor = await WQL.subscribe({
     creation: true,
     deletion: false,
     filter: ["firefox.exe"],
-    whitelist: true
+    whitelist: true,
   });
   console.log("subscribe");
 

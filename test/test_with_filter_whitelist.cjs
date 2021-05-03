@@ -11,7 +11,7 @@ const processMonitor = WQL.subscribe({
   filterWindowsNoise: false,
   filterUsualProgramLocations: false,
   filter: filter,
-  whitelist: true
+  whitelist: true,
 });
 console.log("subscribe");
 console.log("filtering (whitelist): " + filter.toString());
