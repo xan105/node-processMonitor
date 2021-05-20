@@ -123,9 +123,6 @@ and will sometimes be empty because of permission to access a process informatio
 
 💡 Don't forget to keep the node.js event loop alive.
 
-⚠️ You can call `subscribe()` more than once to make multiple queries but I **strongly** discourage it. 
-Obviously making conflicting queries will have an unexpected and erratic behavior.
-
 ### createEventSink(void) : void
 
 Initialize the event sink.<br/>
