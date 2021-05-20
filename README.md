@@ -4,17 +4,9 @@ Example
 =======
 
 ```js
-const WQL = require('wql-process-monitor');
-//or esm 
-import * as WQL from 'wql-process-monitor';
+import { promises as WQL } from 'wql-process-monitor';
 
-//Sync
-WQL.createEventSink(); //init the event sink 
-const processMonitor = WQL.subscribe(); //subscribe to all events
-
-//Promise
-await WQL.promises.createEventSink();
-const processMonitor = await WQL.promises.subscribe();
+const processMonitor = await WQL.subscribe();
 
 processMonitor.on("creation", ([process,pid,filepath]) => {
   console.log(`creation: ${process}::${pid} ["${filepath}"]`);
@@ -35,7 +27,7 @@ setInterval(()=>{}, 1000 * 60 * 60);
 Do something when a specific process is started :
 
 ```js
-const processMonitor = await WQL.promises.subscribe({
+const processMonitor = await WQL.subscribe({
   creation: true,
   deletion: false,
   filter: ["firefox.exe"],
@@ -45,7 +37,6 @@ const processMonitor = await WQL.promises.subscribe({
 processMonitor.on("creation", ([process,pid,filepath]) => {
   console.log(`creation: ${process}::${pid} ["${filepath}"]`);
 });
-
 ```
 
 
@@ -62,36 +53,17 @@ API
 > Promises are available for all methods under the .promises obj.
 
 ```js
-//Example
+//Example cjs
 const WQL = require('wql-process-monitor');
 WQL.createEventSink(); //sync
 WQL.promises.createEventSink(); //promise
 ```
 
-Before explaining the API let's review what you need to do :
+💡 Usage of promise instead of sync is recommended so that you will not block Node's event loop.
 
-1) Initialize the event sink by using `createEventSink()`.
+### subscribe([obj option]) : AsyncEventEmitter
 
-2) Subscribe to event(s) of your choosing : creation, deletion, or both by using `subscribe({options})`.
-
-3) You need to keep node.js event loop alive.   
-
-See below for details.
-
-### createEventSink(void) : void
-
-Initialize the event sink.<br/>
-This is required to do before you can subscribe to any events.
-
-### closeEventSink(void) : void
-
-If you need to close the event sink.<br/>
-There is no 'un-subscribe' thing to do prior to closing the sink. Just close it.<br/>
-You shouldn't have to bother with this but it's here in case you need it.
-
-### subscribe([obj option]) : EventEmitter
-
-Options:
+⚙️ Options:
 
 - creation | bool (default true)
 
@@ -133,9 +105,6 @@ Options:
 	`filterWindowsNoise` / `filterUsualProgramLocations` can still be used.<br/>
 	Previously mentioned limitation(s) still apply.
 	
-❌ On failure `ERR_WQL_QUERY_FAILED` the event sink will be closed.<br/>
-If you want to try again to subscribe you will need to re-open the event sink with `createEventSink`.
-
 ✔️ Return a non-blocking async event emitter ([emittery](https://github.com/sindresorhus/emittery)):
 
 ```js
@@ -143,7 +112,29 @@ If you want to try again to subscribe you will need to re-open the event sink wi
 .on("deletion", ([process,pid]) => {})
 ```
 
-Where process is the process name _eg: "firefox.exe"_, pid its process identifier and filepath its file location path ( if available** )
+|Value|Description|Example|
+|-----|-----------|-------|
+|process|process name| firefox.exe|
+|pid|process identifier| 16804|
+|filepath|file location path (if available*)|C:\Program Files\Mozilla Firefox\firefox.exe|
 
-** filepath is only available in "creation" (well it doesn't make sense to open a deleted process for its information ^^)
+*filepath is only available in "creation" (well it doesn't make sense to open a deleted process for its information ^^)
 and will sometimes be empty because of permission to access a process information and in the same fashion 32bits can not access 64 bits.
+
+💡 Don't forget to keep the node.js event loop alive.
+
+### createEventSink(void) : void
+
+Initialize the event sink.<br/>
+This is required to do before you can subscribe to any events.<br/>
+If the event sink is already initialized then nothing will be done.
+
+💡 Since version >= 2.0 this is automatically done for you when you call `subscribe()`.<br/>
+Method was kept for backward compatibility.
+
+### closeEventSink(void) : void
+
+**Properly** close the event sink.<br/>
+There is no 'un-subscribe' thing to do prior to closing the sink. Just close it.<br/>
+It is recommended to properly close the event sink when you are done if you intend to re-open it later on.<br/>
+Most of the time you wouldn't have to bother with this but it's here in case you need it.
