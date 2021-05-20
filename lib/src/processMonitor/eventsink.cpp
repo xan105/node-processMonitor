@@ -24,6 +24,7 @@ SOFTWARE.
 
 #include "stdafx.h" // vs2017 use "pch.h" for vs2019
 #include "eventsink.h"
+#include "wstring.h"
 
 typedef void(__stdcall Callback)(char const * event, char const * process, char const * handle, char const * filepath);
 extern Callback* callback;
@@ -130,14 +131,9 @@ HRESULT EventSink::Indicate(long lObjectCount, IWbemClassObject **apObjArray)
 
 						processHandle = OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, FALSE, pid);
 						if (processHandle != NULL) {
-							if (QueryFullProcessImageName(processHandle, 0, processpath, &Size)) {
-								
+							if (QueryFullProcessImageName(processHandle, 0, processpath, &Size)) {	
 								sprocesspath = processpath;
-								//wstring to string
-								int size = WideCharToMultiByte(CP_UTF8, WC_ERR_INVALID_CHARS, &sprocesspath[0], sprocesspath.size(), NULL, 0, NULL, NULL);
-								filepath = std::string(size, 0);
-								WideCharToMultiByte(CP_UTF8, WC_ERR_INVALID_CHARS, &sprocesspath[0], sprocesspath.size(), &filepath[0], size, NULL, NULL);
-
+								filepath = wstringToString(sprocesspath);
 							}
 							CloseHandle(processHandle);
 						}

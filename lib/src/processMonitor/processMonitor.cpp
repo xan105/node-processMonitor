@@ -24,6 +24,7 @@ SOFTWARE.
 
 #include "stdafx.h" // vs2017 use "pch.h" for vs2019
 #include "eventsink.h"
+#include "wstring.h"
 #include <vector>
 
 typedef void(__stdcall Callback)(char const * event, char const * process, char const * handle, char const * filepath);
@@ -343,10 +344,7 @@ extern "C"
 			pperrinfo->GetDescription(&description);
 			std::wstring sdescription(description, SysStringLen(description)); // BSTR to std::wstring
 			
-			//wstring to string
-			int size = WideCharToMultiByte(CP_UTF8, WC_ERR_INVALID_CHARS, &sdescription[0], sdescription.size(), NULL, 0, NULL, NULL);
-			message = std::string(size, 0);
-			WideCharToMultiByte(CP_UTF8, WC_ERR_INVALID_CHARS, &sdescription[0], sdescription.size(), &message[0], size, NULL, NULL);
+			message = wstringToString(sdescription);
 
 			pperrinfo->Release();
 		}
