@@ -101,7 +101,13 @@ public:
 			if (FAILED(this->hres))
 			{
 				this->isReady = false;
-				return 1; //Failed to initialize COM library
+
+				if (this->hres == RPC_E_CHANGED_MODE) {
+					return 1; //COM library for the calling thread already initialized by 3rd party with different threading model. This lib requires 'COINIT_MULTITHREADED'
+				}
+				else {
+					return 2; //Failed to initialize COM library for the calling thread
+				}
 			}
 
 			// Step 2: Set general COM security levels
@@ -123,7 +129,7 @@ public:
 			{
 				CoUninitialize();
 				this->isReady = false;
-				return 2; //Failed to initialize security
+				return 3; //Failed to initialize security
 			}
 
 			// Step 3: Obtain the initial locator to WMI
@@ -140,7 +146,7 @@ public:
 			{
 				CoUninitialize();
 				this->isReady = false;
-				return 3; //Failed to create IWbemLocator object
+				return 4; //Failed to create IWbemLocator object
 			}
 
 			// Step 4: Connect to WMI through the IWbemLocator::ConnectServer method
@@ -165,7 +171,7 @@ public:
 				this->pLoc->Release();
 				CoUninitialize();
 				this->isReady = false;
-				return 4; //Could not connect to ROOT\\CIMV2 WMI namespace
+				return 5; //Could not connect to ROOT\\CIMV2 WMI namespace
 			}
 
 			// Step 5: Set security levels on the proxy
@@ -187,7 +193,7 @@ public:
 				this->pLoc->Release();
 				CoUninitialize();
 				this->isReady = false;
-				return 5; //Could not set proxy blanket
+				return 6; //Could not set proxy blanket
 			}
 
 			// Step 6: Receive event notifications
@@ -296,6 +302,7 @@ public:
 WQL monitor;
 
 Callback* callback;
+
 
 #define APICALL  __declspec(dllexport) 
 extern "C"
