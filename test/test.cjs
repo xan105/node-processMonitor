@@ -2,8 +2,8 @@
 
 const WQL = require("../lib/processMonitor.cjs");
 
-WQL.createEventSink();
-console.log("createEventSink");
+//WQL.createEventSink();
+//console.log("createEventSink");
 
 const processMonitor = WQL.subscribe({ filterWindowsNoise: false });
 console.log("subscribe");

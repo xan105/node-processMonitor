@@ -47,14 +47,14 @@ private:
 		"AND NOT TargetInstance.ExecutablePath LIKE '%Windows\\\\System32%'"
 		"AND NOT TargetInstance.ExecutablePath LIKE '%Windows\\\\SysWOW64%'"
 		"AND TargetInstance.Name != 'FileCoAuth.exe'" //OneDrive
-	);
+		);
 
 	const _bstr_t WQL_filterUsualProgramLocations = (
 		"AND NOT TargetInstance.ExecutablePath LIKE '%Program Files%'"
 		"AND NOT TargetInstance.ExecutablePath LIKE '%Program Files (x86)%'"
 		"AND NOT TargetInstance.ExecutablePath LIKE '%AppData\\\\Local%'"
 		"AND NOT TargetInstance.ExecutablePath LIKE '%AppData\\\\Roaming%'"
-	);
+		);
 
 	vector<string> explode(const string &delimiter, const string &str)
 	{
@@ -91,7 +91,7 @@ public:
 
 	WQL() {}  //constructor
 
-	void init()
+	int init()
 	{
 		if (!this->isReady) {
 
@@ -101,7 +101,7 @@ public:
 			if (FAILED(this->hres))
 			{
 				this->isReady = false;
-				throw std::runtime_error("Failed to initialize COM library");
+				return 1; //Failed to initialize COM library
 			}
 
 			// Step 2: Set general COM security levels
@@ -123,7 +123,7 @@ public:
 			{
 				CoUninitialize();
 				this->isReady = false;
-				throw std::runtime_error("Failed to initialize security");
+				return 2; //Failed to initialize security
 			}
 
 			// Step 3: Obtain the initial locator to WMI
@@ -140,7 +140,7 @@ public:
 			{
 				CoUninitialize();
 				this->isReady = false;
-				throw std::runtime_error("Failed to create IWbemLocator object");
+				return 3; //Failed to create IWbemLocator object
 			}
 
 			// Step 4: Connect to WMI through the IWbemLocator::ConnectServer method
@@ -165,7 +165,7 @@ public:
 				this->pLoc->Release();
 				CoUninitialize();
 				this->isReady = false;
-				throw std::runtime_error("Could not connect to ROOT\\CIMV2 WMI namespace");
+				return 4; //Could not connect to ROOT\\CIMV2 WMI namespace
 			}
 
 			// Step 5: Set security levels on the proxy
@@ -187,7 +187,7 @@ public:
 				this->pLoc->Release();
 				CoUninitialize();
 				this->isReady = false;
-				throw std::runtime_error("Could not set proxy blanket");
+				return 5; //Could not set proxy blanket
 			}
 
 			// Step 6: Receive event notifications
@@ -208,30 +208,28 @@ public:
 			this->pStubSink = NULL;
 			pStubUnk->QueryInterface(IID_IWbemObjectSink,
 				(void **)&this->pStubSink);
-		
+
 			this->isReady = true;
 		}
+		return 0;
 	}
-	
+
 	//WMI QUERY
-	bool queryAsync_InstanceEvent(std::string event, bool filterWindowsNoise, bool filterUsualProgramLocations, bool whitelist, std::string custom_filter = "")
+	bool queryAsync_InstanceEvent(bool creation, bool deletion, bool filterWindowsNoise, bool filterUsualProgramLocations, bool whitelist, std::string custom_filter = "")
 	{
-		
+
 		_bstr_t WQL_Query = ("SELECT * ");
-		
-		if (event == "creation") {
+
+		if (creation && !deletion) {
 			WQL_Query = WQL_Query + "FROM __InstanceCreationEvent WITHIN 1 "; //Creation
 		}
-		else if (event == "deletion") {
+		else if (deletion && !creation) {
 			WQL_Query = WQL_Query + "FROM __InstanceDeletionEvent WITHIN 1 "; //Deletion
 		}
-		else if (event == "operation") {
+		else {
 			WQL_Query = WQL_Query + "FROM __InstanceOperationEvent WITHIN 1 "; //Creation + Deletion
-		} else {
-			this->close();
-			throw std::runtime_error("Unexpected query event");
 		}
-		
+
 		WQL_Query = WQL_Query + "WHERE TargetInstance ISA 'Win32_Process'";
 		
 		if (filterWindowsNoise) {
@@ -302,9 +300,9 @@ Callback* callback;
 #define APICALL  __declspec(dllexport) 
 extern "C"
 {
-	APICALL void createEventSink()
+	APICALL int createEventSink()
 	{
-		monitor.init();
+		return monitor.init();
 	}
 	
 	APICALL void closeEventSink()
@@ -315,17 +313,17 @@ extern "C"
 
 	APICALL bool getInstanceOperationEvent(bool filterWindowsNoise, bool filterUsualProgramLocations, bool whitelist, char const * custom_filter)
 	{
-		return monitor.queryAsync_InstanceEvent("operation", filterWindowsNoise, filterUsualProgramLocations, whitelist, custom_filter);
+		return monitor.queryAsync_InstanceEvent(true, true, filterWindowsNoise, filterUsualProgramLocations, whitelist, custom_filter);
 	}
 	
 	APICALL bool getInstanceCreationEvent(bool filterWindowsNoise, bool filterUsualProgramLocations, bool whitelist, char const * custom_filter)
 	{
-		return monitor.queryAsync_InstanceEvent("creation", filterWindowsNoise, filterUsualProgramLocations, whitelist, custom_filter);
+		return monitor.queryAsync_InstanceEvent(true, false, filterWindowsNoise, filterUsualProgramLocations, whitelist, custom_filter);
 	}
 
 	APICALL bool getInstanceDeletionEvent(bool filterWindowsNoise, bool filterUsualProgramLocations, bool whitelist, char const * custom_filter)
 	{
-		return monitor.queryAsync_InstanceEvent("deletion", filterWindowsNoise, filterUsualProgramLocations, whitelist, custom_filter);
+		return monitor.queryAsync_InstanceEvent(false, true, filterWindowsNoise, filterUsualProgramLocations, whitelist, custom_filter);
 	}
 
 	APICALL void setCallback(Callback* callbackPtr) {
@@ -335,7 +333,7 @@ extern "C"
 
 	APICALL char const * getError() {
 		
-		std::string message;
+		std::string message = "";
 		
 		IErrorInfo *pperrinfo = NULL;
 		HRESULT err = GetErrorInfo(0, &pperrinfo);
@@ -347,9 +345,6 @@ extern "C"
 			message = wstringToString(sdescription);
 
 			pperrinfo->Release();
-		}
-		else {
-			message = "Unknown error (failed to obtain any available information from the COM interface)";
 		}
 		return message.c_str();
 	}
