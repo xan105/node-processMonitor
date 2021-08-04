@@ -25,7 +25,7 @@ setInterval(()=>{}, 1000 * 60 * 60);
 ```
 
 <p align="center">
-<img src="https://github.com/xan105/node-processMonitor/raw/master/screenshot/example.png">
+<img src="https://github.com/xan105/node-processMonitor/raw/main/screenshot/example.png">
 </p>
 
 Do something when a specific process is started :
