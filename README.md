@@ -6,7 +6,9 @@ Example
 ```js
 import { promises as WQL } from 'wql-process-monitor';
 
-const processMonitor = await WQL.subscribe();
+const processMonitor = await WQL.subscribe({
+  filterWindowsNoise: false
+});
 
 processMonitor.on("creation", ([process,pid,filepath]) => {
   console.log(`creation: ${process}::${pid} ["${filepath}"]`);
@@ -19,7 +21,7 @@ processMonitor.on("deletion",([process,pid]) => {
 /*
 Keep alive
 You don't need this if you have something else to keep the event loop running.
-This is just as an example so node.js doesn't exit directly.
+This is just as an example so Node.js doesn't exit directly.
 */
 setInterval(()=>{}, 1000 * 60 * 60);
 ```
@@ -49,7 +51,7 @@ Installation
 
 `npm install wql-process-monitor`
 
-_Prequisites: C/C++ build tools (Visual Studio) and Python ~2.7~ 3.x (node-gyp) in order to build [node-ffi-napi](https://www.npmjs.com/package/ffi-napi)._
+_Prerequisite: C/C++ build tools (Visual Studio) and Python 3.x (node-gyp) in order to build [node-ffi-napi](https://www.npmjs.com/package/ffi-napi)._
 
 API
 ===
@@ -135,6 +137,12 @@ If the event sink is already initialized then nothing will be done.
 
 💡 Since version >= 2.0 this is automatically done for you when you call `subscribe()`.<br/>
 Method was merely kept for backward compatibility.
+
+⚠️ If your application (the caller thread) is initializing a COM library you need to set the thread model to [COINIT_MULTITHREADED](https://docs.microsoft.com/en-us/windows/win32/api/combaseapi/nf-combaseapi-coinitializeex)
+For this reason using this in Electron's main process isn't viable. If you really need to use Electron's main process; I suggest that you either
+- use web workers or
+- use a hidden browser window and communicate between the main process and background window via Electron's IPC.
+
 
 ### closeEventSink(void) : void
 
