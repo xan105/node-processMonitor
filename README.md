@@ -24,6 +24,10 @@ This is just as an example so node.js doesn't exit directly.
 setInterval(()=>{}, 1000 * 60 * 60);
 ```
 
+<p align="center">
+<img src="https://github.com/xan105/node-powertoast/raw/master/screenshot/example.png">
+</p>
+
 Do something when a specific process is started :
 
 ```js
