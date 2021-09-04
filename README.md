@@ -1,3 +1,6 @@
+About
+=====
+
 Monitor Windows process creation/deletion events via WMI (WQL) in Node.js
 
 Example
@@ -139,10 +142,10 @@ If the event sink is already initialized then nothing will be done.
 Method was merely kept for backward compatibility.
 
 ⚠️ If your application (the caller thread) is initializing a COM library you need to set the thread model to [COINIT_MULTITHREADED](https://docs.microsoft.com/en-us/windows/win32/api/combaseapi/nf-combaseapi-coinitializeex)
-For this reason using this in Electron's main process isn't viable. If you really need to use Electron's main process; I suggest that you either
-- use web workers or
+For this reason using this in Electron's main process isn't viable. If you really need to use Electron's main process; Here are some workarounds:
+- spawn a node child process to execute this module
+- use web workers
 - use a hidden browser window and communicate between the main process and background window via Electron's IPC.
-
 
 ### closeEventSink(void) : void
 
