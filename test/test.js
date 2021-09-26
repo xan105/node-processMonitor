@@ -1,6 +1,4 @@
-"use strict";
-
-const WQL = require("../lib/processMonitor.cjs");
+import * as WQL from "../lib/esm.js";
 
 //WQL.createEventSink();
 //console.log("createEventSink");

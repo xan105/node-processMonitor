@@ -1,12 +1,10 @@
-"use strict";
-
-const WQL = require("../lib/processMonitor.cjs");
+import { promises as WQL } from "../lib/esm.js";
 
 (async () => {
-  await WQL.promises.createEventSink();
+  await WQL.createEventSink();
   console.log("createEventSink");
 
-  const processMonitor = await WQL.promises.subscribe({ filterWindowsNoise: false });
+  const processMonitor = await WQL.subscribe({ filterWindowsNoise: false });
   console.log("subscribe");
 
   processMonitor.on("creation", ([process, pid, filepath]) => {

@@ -7,11 +7,9 @@ Example
 =======
 
 ```js
-import { promises as WQL } from 'wql-process-monitor';
+import { subscribe } from 'wql-process-monitor/promises';
 
-const processMonitor = await WQL.subscribe({
-  filterWindowsNoise: false
-});
+const processMonitor = await subscribe();
 
 processMonitor.on("creation", ([process,pid,filepath]) => {
   console.log(`creation: ${process}::${pid} ["${filepath}"]`);
@@ -24,7 +22,7 @@ processMonitor.on("deletion",([process,pid]) => {
 /*
 Keep alive
 You don't need this if you have something else to keep the event loop running.
-This is just as an example so Node.js doesn't exit directly.
+This is just an example so Node.js doesn't exit directly.
 */
 setInterval(()=>{}, 1000 * 60 * 60);
 ```
@@ -36,7 +34,7 @@ setInterval(()=>{}, 1000 * 60 * 60);
 Do something when a specific process is started :
 
 ```js
-const processMonitor = await WQL.subscribe({
+const processMonitor = await subscribe({
   creation: true,
   deletion: false,
   filter: ["firefox.exe"],
@@ -48,7 +46,6 @@ processMonitor.on("creation", ([process,pid,filepath]) => {
 });
 ```
 
-
 Installation
 ============
 
@@ -59,18 +56,20 @@ _Prerequisite: C/C++ build tools (Visual Studio) and Python 3.x (node-gyp) in or
 API
 ===
 
-> Promises are available for all methods under the .promises obj.
+⚠️ This module is only available as an ECMAScript module (ESM) starting with version 2.0.0.<br />
+Previous version(s) are CommonJS (CJS) with an ESM wrapper.
 
+💡 Promises are under the `promises` namespace.
 ```js
-//Example cjs
-const WQL = require('wql-process-monitor');
-WQL.createEventSink(); //sync
-WQL.promises.createEventSink(); //promise
+import * as WQL from 'wql-process-monitor';
+WQL.promises.createEventSink() //Promise
+WQL.createEventSink() //Sync
 ```
 
-💡 Usage of promise instead of sync is recommended so that you will not block Node's event loop.
+## Named export
 
-### subscribe([obj option]) : AsyncEventEmitter
+### subscribe
+`(option?: obj): AsyncEventEmitter`
 
 ⚙️ Options:
 
@@ -125,29 +124,32 @@ WQL.promises.createEventSink(); //promise
 |-----|-----------|-------|
 |process|process name| firefox.exe|
 |pid|process identifier| 16804|
-|filepath|file location path (if available*)|C:\Program Files\Mozilla Firefox\firefox.exe|
+|filepath|file location path (if available¹)|C:\Program Files\Mozilla Firefox\firefox.exe|
 
-*filepath is only available in "creation" (well it doesn't make sense to open a deleted process for its information ^^)
+¹filepath is only available in "creation" (well it doesn't make sense to open a deleted process for its information ^^)
 and will sometimes be empty because of permission to access a process information and in the same fashion 32bits can not access 64 bits.
 
 💡 Don't forget to keep the node.js event loop alive.
 
-### createEventSink(void) : void
+### createEventSink
+`(): void`
 
 Initialize the event sink.<br/>
 This is required to do before you can subscribe to any events.<br/>
 If the event sink is already initialized then nothing will be done.
 
-💡 Since version >= 2.0 this is automatically done for you when you call `subscribe()`.<br/>
+💡 Since version >= 2.0.0 this is automatically done for you when you call `subscribe()`.<br/>
 Method was merely kept for backward compatibility.
 
 ⚠️ If your application (the caller thread) is initializing a COM library you need to set the thread model to [COINIT_MULTITHREADED](https://docs.microsoft.com/en-us/windows/win32/api/combaseapi/nf-combaseapi-coinitializeex)
-For this reason using this in Electron's main process isn't viable. If you really need to use Electron's main process; Here are some workarounds:
-- spawn a node child process to execute this module
-- use web workers
+For this reason using this in Electron's main process isn't viable. If you really need to use Electron's main process; I suggest that you either
+- fork a node child process or
+- use web workers or
 - use a hidden browser window and communicate between the main process and background window via Electron's IPC.
 
-### closeEventSink(void) : void
+
+### closeEventSink
+`(): void`
 
 **Properly** close the event sink.<br/>
 There is no 'un-subscribe' thing to do prior to closing the sink. Just close it.<br/>
