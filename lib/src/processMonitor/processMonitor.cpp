@@ -303,7 +303,6 @@ WQL monitor;
 
 Callback* callback;
 
-
 #define APICALL  __declspec(dllexport) 
 extern "C"
 {
@@ -318,41 +317,13 @@ extern "C"
 		monitor.close();
 	}
 
-	APICALL bool getInstanceOperationEvent(bool filterWindowsNoise, bool filterUsualProgramLocations, bool whitelist, char const * custom_filter)
+	APICALL bool getInstanceEvent(bool creation, bool deletion, bool filterWindowsNoise, bool filterUsualProgramLocations, bool whitelist, char const * custom_filter)
 	{
-		return monitor.queryAsync_InstanceEvent(true, true, filterWindowsNoise, filterUsualProgramLocations, whitelist, custom_filter);
-	}
-	
-	APICALL bool getInstanceCreationEvent(bool filterWindowsNoise, bool filterUsualProgramLocations, bool whitelist, char const * custom_filter)
-	{
-		return monitor.queryAsync_InstanceEvent(true, false, filterWindowsNoise, filterUsualProgramLocations, whitelist, custom_filter);
-	}
-
-	APICALL bool getInstanceDeletionEvent(bool filterWindowsNoise, bool filterUsualProgramLocations, bool whitelist, char const * custom_filter)
-	{
-		return monitor.queryAsync_InstanceEvent(false, true, filterWindowsNoise, filterUsualProgramLocations, whitelist, custom_filter);
+		return monitor.queryAsync_InstanceEvent(creation, deletion, filterWindowsNoise, filterUsualProgramLocations, whitelist, custom_filter);
 	}
 
 	APICALL void setCallback(Callback* callbackPtr) {
 		callback = callbackPtr;
 		return;
-	}
-
-	APICALL char const * getError() {
-		
-		std::string message = "";
-		
-		IErrorInfo *pperrinfo = NULL;
-		HRESULT err = GetErrorInfo(0, &pperrinfo);
-		if (SUCCEEDED(err) && pperrinfo) {
-			BSTR description;
-			pperrinfo->GetDescription(&description);
-			std::wstring sdescription(description, SysStringLen(description)); // BSTR to std::wstring
-			
-			message = wstringToString(sdescription);
-
-			pperrinfo->Release();
-		}
-		return message.c_str();
 	}
 }
