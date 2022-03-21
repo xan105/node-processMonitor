@@ -1,4 +1,4 @@
-import * as WQL from "../lib/esm.js";
+import * as WQL from "../lib/index.js";
 
 //WQL.createEventSink();
 //console.log("createEventSink");

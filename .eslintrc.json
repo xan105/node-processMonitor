@@ -13,7 +13,7 @@
         "SharedArrayBuffer": "readonly"
     },
     "parserOptions": {
-        "ecmaVersion": 12,
+        "ecmaVersion": 13,
         "sourceType": "module"
     },
     "rules": {
@@ -21,6 +21,7 @@
       "no-eval": "error",
       "require-await": "warn",
       "no-useless-escape": "warn"
-    }
+    },
+    "ignorePatterns": ["lib/src/*"]
 }
 

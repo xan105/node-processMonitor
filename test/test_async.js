@@ -1,4 +1,4 @@
-import { promises as WQL } from "../lib/esm.js";
+import { promises as WQL } from "../lib/index.js";
 
 (async () => {
   await WQL.createEventSink();

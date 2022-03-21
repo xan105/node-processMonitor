@@ -49,7 +49,9 @@ processMonitor.on("creation", ([process,pid,filepath]) => {
 Installation
 ============
 
-`npm install wql-process-monitor`
+```
+npm install wql-process-monitor
+```
 
 _Prerequisite: C/C++ build tools (Visual Studio) and Python 3.x (node-gyp) in order to build [node-ffi-napi](https://www.npmjs.com/package/ffi-napi)._
 
@@ -64,24 +66,26 @@ Previous version(s) are CommonJS (CJS) with an ESM wrapper.
 import * as WQL from 'wql-process-monitor';
 WQL.promises.createEventSink() //Promise
 WQL.createEventSink() //Sync
+
+import * as WQL from 'wql-process-monitor/promises';
+WQL.createEventSink() //Promise
 ```
 
 ## Named export
 
-### subscribe
-`(option?: obj): AsyncEventEmitter`
+### `subscribe(option?: obj): AsyncEventEmitter`
 
 ⚙️ Options:
 
-- creation | bool (default true)
+- creation | boolean (default true)
 
 	Subscribe to the creation event
 	
-- deletion | bool (default true)
+- deletion | boolean (default true)
 
 	Subscribe to the deletionn event
 	
-- filterWindowsNoise | bool (default false)
+- filterWindowsNoise | boolean (default false)
 
 	Exclude events originating from System32 and SysWOW64 Windows folder as well as integrated OneDrive `FileCoAuth.exe`.<br/>
 	Ex: cmd.exe, powershell.exe, svchost.exe, RuntimeBroker.exe, and others Windows processes.<br/>
@@ -90,7 +94,7 @@ WQL.createEventSink() //Sync
 	Unless you are also elevated. This is a permission issue (See [#2](https://github.com/xan105/node-processMonitor/issues/2)).<br/>
 	_You can implement your own filter on top of the event emitter result instead._
 
-- filterUsualProgramLocations | bool (default false)
+- filterUsualProgramLocations | boolean (default false)
 
 	Exclude events originating from Program Files, Program Files (x86), AppData local and AppData Roaming.
 	
@@ -107,7 +111,7 @@ WQL.createEventSink() //Sync
 	cf: https://docs.microsoft.com/en-us/windows/win32/wmisdk/querying-with-wql<br/>
 	If you have a huge list consider implementing your own filter on top of the event emitter result instead.
 
-- whitelist | bool (default false)
+- whitelist | boolean (default false)
 
 	Use `filter` option as a whitelist.<br/>
 	`filterWindowsNoise` / `filterUsualProgramLocations` can still be used.<br/>
@@ -131,8 +135,7 @@ and will sometimes be empty because of permission to access a process informatio
 
 💡 Don't forget to keep the node.js event loop alive.
 
-### createEventSink
-`(): void`
+### `createEventSink(): void`
 
 Initialize the event sink.<br/>
 This is required to do before you can subscribe to any events.<br/>
@@ -148,8 +151,7 @@ For this reason using this in Electron's main process isn't viable. If you reall
 - use a hidden browser window and communicate between the main process and background window via Electron's IPC.
 
 
-### closeEventSink
-`(): void`
+### `closeEventSink(): void`
 
 **Properly** close the event sink.<br/>
 There is no 'un-subscribe' thing to do prior to closing the sink. Just close it.<br/>
