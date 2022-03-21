@@ -1,10 +1,10 @@
 declare interface IOption {
-  filterWindowsNoise?: bool,
-  filterUsualProgramLocations?: bool,
-  creation?: bool,
-  deletion?: bool,
+  filterWindowsNoise?: boolean,
+  filterUsualProgramLocations?: boolean,
+  creation?: boolean,
+  deletion?: boolean,
   filter?: string[],
-  whitelist?: bool
+  whitelist?: boolean
 }
 
 export function createEventSink(): Promise<void>
