@@ -3,4 +3,3 @@ lib/src/
 test/
 screenshot/
 .eslintrc.json
-.prettierrc.json
