@@ -1,0 +1,11 @@
+{
+  "Version": 1,
+  "ProjectMap": {
+    "2c6c754d-4255-4f4a-bcf4-73e9b472e0a7": {
+      "ProjectGuid": "2c6c754d-4255-4f4a-bcf4-73e9b472e0a7",
+      "DisplayName": "processMonitor",
+      "ColorIndex": 0
+    }
+  },
+  "NextColorIndex": 1
+}
