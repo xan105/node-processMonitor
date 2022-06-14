@@ -1,13 +1,18 @@
 {
   "name": "wql-process-monitor",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "description": "Monitor Windows process creation/deletion events via WMI (WQL)",
   "type": "module",
   "exports": {
-    ".": "./lib/index.js",
-    "./promises": "./lib/promises.js"
+    ".": {
+      "types": "./types/index.d.ts",
+      "default": "./lib/index.js"
+    },
+    "./promises": {
+      "types": "./types/promises.d.ts",
+      "default": "./lib/promises.js"
+    }
   },
-  "types": "./types/index.d.ts",
   "os": [
     "win32"
   ],
@@ -42,12 +47,12 @@
   },
   "homepage": "https://github.com/xan105/node-processMonitor#readme",
   "dependencies": {
-    "@xan105/error": "^1.2.0",
-    "@xan105/is": "^2.4.0",
-    "emittery": "^0.10.1",
+    "@xan105/error": "^1.3.1",
+    "@xan105/is": "^2.5.1",
+    "emittery": "^0.11.0",
     "ffi-napi": "^4.0.3"
   },
   "devDependencies": {
-    "eslint": "^8.11.0"
+    "eslint": "^8.17.0"
   }
 }
