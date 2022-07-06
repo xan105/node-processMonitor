@@ -156,7 +156,7 @@ class WQL
     }
 
     //WQL QUERY
-    bool queryAsync_InstanceEvent(char const* query)
+    long queryAsync_InstanceEvent(char const* query)
     {
         this->hres = this->pSvc->ExecNotificationQueryAsync(
         _bstr_t("WQL"),
@@ -165,15 +165,8 @@ class WQL
         NULL,
         this->pStubSink);
 
-      if (FAILED(this->hres))
-      {
-        this->close();
-        return false;
-      }
-      else
-      {
-        return true;
-      }
+        if (FAILED(this->hres)) { this->close(); }
+        return this->hres;
     }
 
     void cancel()
@@ -212,7 +205,7 @@ extern "C"
 		monitor.close();
 	}
 
-	APICALL bool getInstanceEvent(char const * query)
+	APICALL long getInstanceEvent(char const * query)
 	{
 		return monitor.queryAsync_InstanceEvent(query);
 	}
