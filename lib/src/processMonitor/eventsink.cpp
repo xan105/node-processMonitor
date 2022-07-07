@@ -8,7 +8,7 @@ found in the LICENSE file in the root directory of this source tree.
 #include "eventsink.h"
 #include "wstring.h"
 
-typedef void(__stdcall Callback)(char const * event, char const * process, char const * handle, char const * filepath);
+typedef void(__stdcall Callback)(char const * event, char const * process, char const * handle, char const * filepath, char const* user);
 extern Callback* callback;
 
 ULONG EventSink::AddRef()
@@ -80,8 +80,9 @@ HRESULT EventSink::Indicate(long lObjectCount, IWbemClassObject **apObjArray)
 					DWORD pid;
 					_bstr_t process;
 					_bstr_t handle;
-					std::string filepath;
 					_variant_t cn;
+					std::string filepath;
+					std::string user;
 					
 					hr = apObjArray[i]->Get(L"Name", 0, &cn, NULL, NULL);
 					if (SUCCEEDED(hr))
@@ -105,23 +106,48 @@ HRESULT EventSink::Indicate(long lObjectCount, IWbemClassObject **apObjArray)
 					}
 					VariantClear(&cn);
 
+					//Additional info with WINAPI instead of WMI for speed
 					if (event == "creation") { //OpenProcess() a deleted process doesn't make much sense
 						HANDLE processHandle = NULL;
-						DWORD Size = MAX_PATH;
-						wchar_t processpath[MAX_PATH];
-						std::wstring sprocesspath;
 
 						processHandle = OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, FALSE, pid);
 						if (processHandle != NULL) {
+							
+							//Get path
+							DWORD Size = MAX_PATH;
+							wchar_t processpath[MAX_PATH];
+							std::wstring sprocesspath;
+							
 							if (QueryFullProcessImageName(processHandle, 0, processpath, &Size)) {	
 								sprocesspath = processpath;
 								filepath = wstringToString(sprocesspath);
+							}
+
+							//Get user
+							HANDLE hToken;
+							DWORD bufSize = sizeof(TOKEN_USER) + SECURITY_MAX_SID_SIZE;
+							PTOKEN_USER pTokenUser;
+							wchar_t accountName[256];
+							wchar_t domainName[256];
+							DWORD accountLength = sizeof(accountName) / sizeof(wchar_t);
+							DWORD domainLength = sizeof(domainName) / sizeof(wchar_t);
+							SID_NAME_USE snu;
+
+							if (OpenProcessToken(processHandle, TOKEN_QUERY, &hToken)) {
+								if (pTokenUser = (PTOKEN_USER)LocalAlloc(LPTR, bufSize)) {
+									if (GetTokenInformation(hToken, TokenUser, pTokenUser, bufSize, &bufSize)) {
+										if (LookupAccountSid(NULL, pTokenUser->User.Sid, accountName, &accountLength, domainName, &domainLength, &snu)) {
+											user = wstringToString(std::wstring(accountName));
+										}
+									}
+									LocalFree(pTokenUser);
+								}
 							}
 							CloseHandle(processHandle);
 						}
 
 					}
-					callback(event.c_str(), process, handle, filepath.c_str());
+					callback(event.c_str(), process, handle, filepath.c_str(), user.c_str());
 
 				}
 				str->Release();

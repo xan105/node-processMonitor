@@ -3,11 +3,11 @@ import * as WQL from "../lib/index.js";
 //WQL.createEventSink();
 //console.log("createEventSink");
 
-const processMonitor = WQL.subscribe({ filterWindowsNoise: false });
+const processMonitor = WQL.subscribe();
 console.log("subscribe");
 
-processMonitor.on("creation", ([process, pid, filepath]) => {
-  console.log(`\x1b[32mcreation\x1b[0m: ${process}::${pid} [\x1b[90m${filepath}\x1b[0m]`);
+processMonitor.on("creation", ([process, pid, filepath, user]) => {
+  console.log(`\x1b[32mcreation\x1b[0m: ${process}::${pid}(${user}) [\x1b[90m${filepath}\x1b[0m]`);
 });
 
 processMonitor.on("deletion", ([process, pid]) => {
