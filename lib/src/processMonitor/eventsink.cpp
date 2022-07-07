@@ -116,11 +116,9 @@ HRESULT EventSink::Indicate(long lObjectCount, IWbemClassObject **apObjArray)
 							//Get path
 							DWORD Size = MAX_PATH;
 							wchar_t processpath[MAX_PATH];
-							std::wstring sprocesspath;
 							
 							if (QueryFullProcessImageName(processHandle, 0, processpath, &Size)) {	
-								sprocesspath = processpath;
-								filepath = wstringToString(sprocesspath);
+								filepath = wstringToString(std::wstring(processpath));
 							}
 
 							//Get user
