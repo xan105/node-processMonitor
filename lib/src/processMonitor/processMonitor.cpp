@@ -26,23 +26,17 @@ class WQL
 
     WQL() {}  //constructor
 
-    int init()
+    long init()
     {
       if (!this->isReady) {
 
         // Step 1: Initialize COM.
 
         this->hres = CoInitializeEx(0, COINIT_MULTITHREADED);
-        if (FAILED(this->hres))
+        if (FAILED(this->hres)) //Failed to initialize COM library for the calling thread
         {
           this->isReady = false;
-
-          if (this->hres == RPC_E_CHANGED_MODE) {
-            return 1; //COM library for the calling thread already initialized by 3rd party with different threading model. This lib requires 'COINIT_MULTITHREADED'
-          }
-          else {
-            return 2; //Failed to initialize COM library for the calling thread
-          }
+          return this->hres;
         }
 
         // Step 2: Set general COM security levels
@@ -60,11 +54,11 @@ class WQL
         );
 
 
-        if (FAILED(this->hres))
+        if (FAILED(this->hres)) //Failed to initialize security
         {
           CoUninitialize();
           this->isReady = false;
-          return 3; //Failed to initialize security
+          return this->hres;
         }
 
         // Step 3: Obtain the initial locator to WMI
@@ -77,11 +71,11 @@ class WQL
           CLSCTX_INPROC_SERVER,
           IID_IWbemLocator, (LPVOID *)&this->pLoc);
 
-        if (FAILED(this->hres))
+        if (FAILED(this->hres)) //Failed to create IWbemLocator object
         {
           CoUninitialize();
           this->isReady = false;
-          return 4; //Failed to create IWbemLocator object
+          return this->hres;
         }
 
         // Step 4: Connect to WMI through the IWbemLocator::ConnectServer method
@@ -101,12 +95,12 @@ class WQL
           &this->pSvc
         );
 
-        if (FAILED(this->hres))
+        if (FAILED(this->hres)) //Could not connect to ROOT\\CIMV2 WMI namespace
         {
           this->pLoc->Release();
           CoUninitialize();
           this->isReady = false;
-          return 5; //Could not connect to ROOT\\CIMV2 WMI namespace
+          return this->hres;
         }
 
         // Step 5: Set security levels on the proxy
@@ -122,13 +116,13 @@ class WQL
           EOAC_NONE                    // proxy capabilities 
         );
 
-        if (FAILED(this->hres))
+        if (FAILED(this->hres)) //Could not set proxy blanket
         {
           this->pSvc->Release();
           this->pLoc->Release();
           CoUninitialize();
           this->isReady = false;
-          return 6; //Could not set proxy blanket
+          return this->hres;
         }
 
         // Step 6: Receive event notifications
@@ -194,7 +188,7 @@ Callback* callback;
 #define APICALL  __declspec(dllexport) 
 extern "C"
 {
-	APICALL int createEventSink()
+	APICALL long createEventSink()
 	{
 		return monitor.init();
 	}
