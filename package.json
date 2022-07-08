@@ -47,12 +47,12 @@
   },
   "homepage": "https://github.com/xan105/node-processMonitor#readme",
   "dependencies": {
-    "@xan105/error": "^1.3.1",
+    "@xan105/error": "^1.3.2",
     "@xan105/is": "^2.5.1",
     "emittery": "^0.11.0",
     "ffi-napi": "^4.0.3"
   },
   "devDependencies": {
-    "eslint": "^8.17.0"
+    "eslint": "^8.19.0"
   }
 }
