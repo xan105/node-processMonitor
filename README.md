@@ -1,7 +1,7 @@
 About
 =====
 
-Monitor Windows process creation/deletion events via WMI (WQL) in Node.js
+Monitor Windows process creation/deletion events.
 
 Example
 =======
@@ -11,11 +11,11 @@ import { subscribe } from 'wql-process-monitor/promises';
 
 const processMonitor = await subscribe();
 
-processMonitor.on("creation", ([process,pid,filepath]) => {
-  console.log(`creation: ${process}::${pid} ["${filepath}"]`);
+processMonitor.on("creation", ([process, pid, filepath, user]) => {
+  console.log(`creation: ${process}::${pid}(${user}) ["${filepath}"]`);
 });
 
-processMonitor.on("deletion",([process,pid]) => {
+processMonitor.on("deletion",([process, pid]) => {
   console.log(`deletion: ${process}::${pid}`);
 });
 
@@ -37,12 +37,14 @@ Do something when a specific process is started :
 const processMonitor = await subscribe({
   creation: true,
   deletion: false,
-  filter: ["firefox.exe"],
-  whitelist: true
+  bin: {
+    filter: ["firefox.exe"],
+    whitelist: true
+  }
 });
 
-processMonitor.on("creation", ([process,pid,filepath]) => {
-  console.log(`creation: ${process}::${pid} ["${filepath}"]`);
+processMonitor.on("creation", ([process, pid, filepath, user]) => {
+  //Do something only when "firefox.exe" is started (_creation_)
 });
 ```
 
@@ -54,6 +56,7 @@ npm install wql-process-monitor
 ```
 
 _Prerequisite: C/C++ build tools (Visual Studio) and Python 3.x (node-gyp) in order to build [node-ffi-napi](https://www.npmjs.com/package/ffi-napi)._
+_💡 Prebuilt binaries are provided so in most cases the above mentioned prerequisites aren't needed._
 
 API
 ===
@@ -77,61 +80,58 @@ WQL.createEventSink() //Promise
 
 ⚙️ Options:
 
-- creation | boolean (default true)
+- creation | boolean (_default true_)
 
-	Subscribe to the creation event
-	
-- deletion | boolean (default true)
+  Subscribe to the creation event
+
+- deletion | boolean (_default true_)
 
 	Subscribe to the deletionn event
-	
-- filterWindowsNoise | boolean (default false)
 
-	Exclude events originating from System32 and SysWOW64 Windows folder as well as integrated OneDrive `FileCoAuth.exe`.<br/>
-	Ex: cmd.exe, powershell.exe, svchost.exe, RuntimeBroker.exe, and others Windows processes.<br/>
-	
-	⚠️ NB: Using this will prevent you to catch any elevated process event.<br/>
+- dir
+  
+  + filter | string[] (_default none_)
+  
+    Exclude events originating from a list of path(s). This can be a full path or a part of it.<br/>
+    Path separator can either be `/` (Unix) or `\\` (Windows).
+    
+    ⚠️ NB: Using this will prevent you to catch any elevated process event.<br/>
 	Unless you are also elevated. This is a permission issue (See [#2](https://github.com/xan105/node-processMonitor/issues/2)).<br/>
 	_You can implement your own filter on top of the event emitter result instead._
+    
+  + whitelist | boolean (_default false_)
 
-- filterUsualProgramLocations | boolean (default false)
+    Turn the above filter option into a whitelist instead of a blacklist.<br/>
+    Only the events originating from the list will be allowed.
+    
+- bin
+  
+  + filter | string[] (_default none_)
+  
+    List of process to exclude.<br/>
+    eg: ["firefox.exe", "chrome.exe", ...]<br/>
+    
+  - whitelist | boolean (_default false_)
 
-	Exclude events originating from Program Files, Program Files (x86), AppData local and AppData Roaming.
-	
-	⚠️ NB: Using this will prevent you to catch any elevated process event.<br/>
-	Unless you are also elevated. This is a permission issue (See [#2](https://github.com/xan105/node-processMonitor/issues/2)).<br/>
-	_You can implement your own filter on top of the event emitter result instead._
+	  Turn the above filter option into a whitelist instead of a blacklist.<br/>
+    Only the process from the list will be allowed.
 
-- filter | array of string (default none)
-
-	Custom list of process to exclude.<br/>
-	eg: ["firefox.exe","chrome.exe",...]<br/>
-	
-	NB: `There are limits to the number of AND and OR keywords that can be used in WQL queries. Large numbers of WQL keywords used in a complex query can cause WMI to return the WBEM_E_QUOTA_VIOLATION error code as an HRESULT value. The limit of WQL keywords depends on how complex the query is`<br/>
+⚠️ NB: `There are limits to the number of AND and OR keywords that can be used in WQL queries. Large numbers of WQL keywords used in a complex query can cause WMI to return WBEM_E_QUOTA_VIOLATION. The limit of WQL keywords depends on how complex the query is`<br/>
 	cf: https://docs.microsoft.com/en-us/windows/win32/wmisdk/querying-with-wql<br/>
-	If you have a huge list consider implementing your own filter on top of the event emitter result instead.
+	When you are using the `filter` option with a huge list consider implementing your own filter on top of the event emitter result instead.
 
-- whitelist | boolean (default false)
+=> Return a non-blocking async event emitter ([emittery](https://github.com/sindresorhus/emittery)):
 
-	Use `filter` option as a whitelist.<br/>
-	`filterWindowsNoise` / `filterUsualProgramLocations` can still be used.<br/>
-	Previously mentioned limitation(s) still apply.
-	
-✔️ Return a non-blocking async event emitter ([emittery](https://github.com/sindresorhus/emittery)):
-
-```js
-.on("creation", ([process,pid,filepath]) => {})
-.on("deletion", ([process,pid]) => {})
+```ts
+.on(event: "creation | deletion", ([
+    process: string, //process name
+    pid: string, //process identifier
+    filepath: string, //file location path
+    user: string //process owner
+]) => {})
 ```
 
-|Value|Description|Example|
-|-----|-----------|-------|
-|process|process name| firefox.exe|
-|pid|process identifier| 16804|
-|filepath|file location path (if available¹)|C:\Program Files\Mozilla Firefox\firefox.exe|
-
-¹filepath is only available in "creation" (well it doesn't make sense to open a deleted process for its information ^^)
-and will sometimes be empty because of permission to access a process information and in the same fashion 32bits can not access 64 bits.
+⚠️ NB: `filepath` and/or `user` _might_ be empty if you don't have the permission to access a process information.
 
 💡 Don't forget to keep the node.js event loop alive.
 
