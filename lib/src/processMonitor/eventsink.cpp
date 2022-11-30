@@ -8,7 +8,7 @@ found in the LICENSE file in the root directory of this source tree.
 #include "eventsink.h"
 #include "wstring.h"
 
-typedef void(__stdcall Callback)(char const * event, char const * process, char const * handle, char const * filepath, char const* user);
+typedef void(__stdcall Callback)(char const * event, char const * process, uint32_t handle, char const * filepath, char const* user);
 extern Callback* callback;
 
 ULONG EventSink::AddRef()
@@ -43,32 +43,19 @@ HRESULT EventSink::Indicate(long lObjectCount, IWbemClassObject **apObjArray)
 
 	for (int i = 0; i < lObjectCount; i++)
 	{
-		bool CreationOrDeletionEvent = false;
-		std::string event;
 		_variant_t cn;
+		std::string event;
 		hr = apObjArray[i]->Get(_bstr_t(L"__Class"), 0, &cn, 0, 0);
 		if (SUCCEEDED(hr))
 		{
 			wstring LClassStr(cn.bstrVal);
-			if (0 == LClassStr.compare(L"__InstanceDeletionEvent"))
-			{
-				event = "deletion";
-				CreationOrDeletionEvent = true;
-			}
-			else if (0 == LClassStr.compare(L"__InstanceCreationEvent"))
-			{
-				event = "creation";
-				CreationOrDeletionEvent = true;
-			}
-			else
-			{
-				event = "modification";
-				CreationOrDeletionEvent = false;
-			}
+			if (0 == LClassStr.compare(L"__InstanceDeletionEvent")) { event = "deletion"; }
+			else if (0 == LClassStr.compare(L"__InstanceCreationEvent")) { event = "creation"; }
+			else { event = "modification"; }
 		}
 		VariantClear(&cn);
 
-		if (CreationOrDeletionEvent)
+		if (event == "creation" || event == "deletion")
 		{
 			hr = apObjArray[i]->Get(_bstr_t(L"TargetInstance"), 0, &vtProp, 0, 0);
 			if (!FAILED(hr))
@@ -77,47 +64,32 @@ HRESULT EventSink::Indicate(long lObjectCount, IWbemClassObject **apObjArray)
 				hr = str->QueryInterface(IID_IWbemClassObject, reinterpret_cast<void**>(&apObjArray[i]));
 				if (SUCCEEDED(hr))
 				{
-					DWORD pid;
-					_bstr_t process;
-					_bstr_t handle;
 					_variant_t cn;
+					_bstr_t process;
+					DWORD pid = 0; //System Idle Process
 					std::string filepath;
-					std::string user;
-					
+					std::string user = "SYSTEM";
+
 					hr = apObjArray[i]->Get(L"Name", 0, &cn, NULL, NULL);
-					if (SUCCEEDED(hr))
-					{
-						if ((cn.vt == VT_NULL) || (cn.vt == VT_EMPTY))
-							process = ((cn.vt == VT_NULL) ? "NULL" : "EMPTY");
-						else
-							process = cn.bstrVal;
-					}
+					if (SUCCEEDED(hr) && !(cn.vt == VT_NULL || cn.vt == VT_EMPTY)) { process = cn.bstrVal; }
 					VariantClear(&cn);
 
 					hr = apObjArray[i]->Get(L"Handle", 0, &cn, NULL, NULL);
-					if (SUCCEEDED(hr))
+					if (SUCCEEDED(hr) && !(cn.vt == VT_NULL || cn.vt == VT_EMPTY)) { pid = cn; }
+
+					//Additional info with WINAPI instead of WMI (permission)
+					if (event == "creation") //OpenProcess() a deleted process doesn't make much sense
 					{
-						if ((cn.vt == VT_NULL) || (cn.vt == VT_EMPTY))
-							handle = ((cn.vt == VT_NULL) ? "NULL" : "EMPTY");
-						else {
-							pid = cn;
-							handle = cn.bstrVal;
-						}
-					}
-					VariantClear(&cn);
-
-					//Additional info with WINAPI instead of WMI for speed
-					if (event == "creation") { //OpenProcess() a deleted process doesn't make much sense
 						HANDLE processHandle = NULL;
-
 						processHandle = OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, FALSE, pid);
-						if (processHandle != NULL) {
-							
+						if (processHandle != NULL)
+						{
 							//Get path
+							//This is more "reliable" permission wise than WMI executablePath 
 							DWORD Size = MAX_PATH;
 							wchar_t processpath[MAX_PATH];
-							
-							if (QueryFullProcessImageName(processHandle, 0, processpath, &Size)) {	
+
+							if (QueryFullProcessImageName(processHandle, 0, processpath, &Size)) {
 								filepath = wstringToString(std::wstring(processpath));
 							}
 
@@ -145,7 +117,7 @@ HRESULT EventSink::Indicate(long lObjectCount, IWbemClassObject **apObjArray)
 						}
 
 					}
-					callback(event.c_str(), process, handle, filepath.c_str(), user.c_str());
+					callback(event.c_str(), process, pid, filepath.c_str(), user.c_str());
 
 				}
 				str->Release();
@@ -160,14 +132,5 @@ HRESULT EventSink::Indicate(long lObjectCount, IWbemClassObject **apObjArray)
 
 HRESULT EventSink::SetStatus(LONG lFlags, HRESULT hResult, BSTR strParam, IWbemClassObject __RPC_FAR *pObjParam)
 {
-	if (lFlags == WBEM_STATUS_COMPLETE)
-	{
-		//Call complete
-	}
-	else if (lFlags == WBEM_STATUS_PROGRESS)
-	{
-		//Call in progress
-	}
-
 	return WBEM_S_NO_ERROR;
 }

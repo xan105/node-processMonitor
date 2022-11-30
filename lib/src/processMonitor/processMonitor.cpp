@@ -7,7 +7,7 @@ found in the LICENSE file in the root directory of this source tree.
 #include "pch.h"
 #include "eventsink.h"
 
-typedef void(__stdcall Callback)(char const* event, char const* process, char const* handle, char const* filepath, char const* user);
+typedef void(__stdcall Callback)(char const* event, char const* process, uint32_t handle, char const* filepath, char const* user);
 
 //cf: https://docs.microsoft.com/en-us/windows/win32/wmisdk/example--receiving-event-notifications-through-wmi-
 class WQL
