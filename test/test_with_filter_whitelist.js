@@ -6,10 +6,10 @@ console.log("createEventSink");
 const filter = ["cmd.exe", "firefox.exe", "chrome.exe"];
 
 const processMonitor = WQL.subscribe({
-  filterWindowsNoise: false,
-  filterUsualProgramLocations: false,
-  filter: filter,
-  whitelist: true,
+  bin: {
+    filter,
+    whitelist: true
+  }
 });
 console.log("subscribe");
 console.log("filtering (whitelist): " + filter.toString());

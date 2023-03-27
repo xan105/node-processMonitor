@@ -7,7 +7,7 @@ Example
 =======
 
 ```js
-import { subscribe } from 'wql-process-monitor/promises';
+import { subscribe } from "wql-process-monitor/promises";
 
 const processMonitor = await subscribe();
 
@@ -66,11 +66,11 @@ Previous version(s) are CommonJS (CJS) with an ESM wrapper.
 
 💡 Promises are under the `promises` namespace.
 ```js
-import * as WQL from 'wql-process-monitor';
+import * as WQL from "wql-process-monitor";
 WQL.promises.createEventSink() //Promise
 WQL.createEventSink() //Sync
 
-import * as WQL from 'wql-process-monitor/promises';
+import * as WQL from "wql-process-monitor/promises";
 WQL.createEventSink() //Promise
 ```
 

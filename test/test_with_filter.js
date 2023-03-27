@@ -6,9 +6,7 @@ console.log("createEventSink");
 const filter = ["cmd.exe", "conhost.exe", "firefox.exe"];
 
 const processMonitor = WQL.subscribe({
-  filterWindowsNoise: false,
-  filterUsualProgramLocations: false,
-  filter: filter,
+  bin: { filter }
 });
 console.log("subscribe");
 console.log("filtering: " + filter.toString());
