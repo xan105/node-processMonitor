@@ -2,6 +2,10 @@
 Copyright (c) Anthony Beaumont
 This source code is licensed under the MIT License
 found in the LICENSE file in the root directory of this source tree.
+
+Based from https://learn.microsoft.com/en-us/windows/win32/wmisdk/example--receiving-event-notifications-through-wmi-
+Copyright(C) Microsoft.All rights reserved.
+No copyright or trademark infringement is intended in using the aforementioned Microsoft example.
 */
 
 #include "pch.h"
@@ -9,7 +13,6 @@ found in the LICENSE file in the root directory of this source tree.
 
 typedef void(__stdcall Callback)(char const* event, char const* process, uint32_t handle, char const* filepath, char const* user);
 
-//cf: https://docs.microsoft.com/en-us/windows/win32/wmisdk/example--receiving-event-notifications-through-wmi-
 class WQL
 {
   private:
