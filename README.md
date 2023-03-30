@@ -7,24 +7,27 @@ Example
 =======
 
 ```js
-import { subscribe } from "wql-process-monitor/promises";
+import { subscribe } from "wql-process-monitor";
 
-const processMonitor = await subscribe();
+const processMonitor = await subscribe({
+  creation: true,
+  deletion: true
+});
 
 processMonitor.on("creation", ([process, pid, filepath, user]) => {
   console.log(`creation: ${process}::${pid}(${user}) ["${filepath}"]`);
 });
 
-processMonitor.on("deletion",([process, pid]) => {
-  console.log(`deletion: ${process}::${pid}`);
+processMonitor.on("deletion",([process, pid, filepath]) => {
+  console.log(`deletion: ${process}::${pid} ["${filepath}"]`);
 });
 
+//Keep the event loop running
+setInterval(()=>{}, 1000 * 60 * 60);
 /*
-Keep alive
 You don't need this if you have something else to keep the event loop running.
 This is just an example so Node.js doesn't exit directly.
 */
-setInterval(()=>{}, 1000 * 60 * 60);
 ```
 
 <p align="center">
@@ -44,7 +47,7 @@ const processMonitor = await subscribe({
 });
 
 processMonitor.on("creation", ([process, pid, filepath, user]) => {
-  //Do something only when "firefox.exe" is started (_creation_)
+  //Do something only when "firefox.exe" is started (creation)
 });
 ```
 
@@ -55,8 +58,7 @@ Installation
 npm install wql-process-monitor
 ```
 
-_Prerequisite: C/C++ build tools (Visual Studio) and Python 3.x (node-gyp) in order to build [node-ffi-napi](https://www.npmjs.com/package/ffi-napi)._
-_💡 Prebuilt binaries are provided so in most cases the above mentioned prerequisites aren't needed._
+Prerequisite: C/C++ build tools (Visual Studio) and Python 3.x (node-gyp) in order to build [node-ffi-napi](https://www.npmjs.com/package/ffi-napi).
 
 API
 ===
@@ -64,63 +66,72 @@ API
 ⚠️ This module is only available as an ECMAScript module (ESM) starting with version 2.0.0.<br />
 Previous version(s) are CommonJS (CJS) with an ESM wrapper.
 
-💡 Promises are under the `promises` namespace.
-```js
-import * as WQL from "wql-process-monitor";
-WQL.promises.createEventSink() //Promise
-WQL.createEventSink() //Sync
-
-import * as WQL from "wql-process-monitor/promises";
-WQL.createEventSink() //Promise
-```
-
 ## Named export
 
-### `subscribe(option?: obj): AsyncEventEmitter`
+### `subscribe(option?: object): Promise<AsyncEventEmitter>`
 
-⚙️ Options:
+Subscribe to an operation event. You must at least choose one.
 
-- creation | boolean (_default true_)
+**⚙️ Options:**
 
-  Subscribe to the creation event
+- creation?: boolean | `true`
 
-- deletion | boolean (_default true_)
+  Subscribe to the creation event.
 
-	Subscribe to the deletionn event
+- deletion?: boolean | `true`
+
+	Subscribe to the deletion event.
 
 - dir
-  
-  + filter | string[] (_default none_)
+
+<details><summary>Filter options via path:</summary>
+
+  + filter?: string[] | `[] (none)`
   
     Exclude events originating from a list of path(s). This can be a full path or a part of it.<br/>
     Path separator can either be `/` (Unix) or `\\` (Windows).
     
-    ⚠️ NB: Using this will prevent you to catch any elevated process event.<br/>
-	Unless you are also elevated. This is a permission issue (See [#2](https://github.com/xan105/node-processMonitor/issues/2)).<br/>
-	_You can implement your own filter on top of the event emitter result instead._
-    
-  + whitelist | boolean (_default false_)
+  + whitelist?: boolean | `false`
 
     Turn the above filter option into a whitelist instead of a blacklist.<br/>
     Only the events originating from the list will be allowed.
     
-- bin
+    ⚠️ When filtering by executable path you won't be able to catch any elevated process event. Unless you are also elevated. 
+    This is a Windows permission issue: 
+    
+    WMI `executablePath` requires `SeDebugPrivilege` permission in this case. This token is automatically granted when running with admin privileges. You can set this permission for regular user via group policy but this is considered a security risk. 
+    NB: Please be advised that this library doesn't try to adjust token privilege.
+
+    ⚠️ There is a hard limit to the number of elements you can filter depending on how complex the query is
+    which will cause WMI to return `WBEM_E_QUOTA_VIOLATION`.
+
+    💡 In such cases consider implementing your own filter on top of the event emitter result instead.
+
+</details>
   
-  + filter | string[] (_default none_)
+- bin
+
+<details><summary>Filter options via name:</summary>
+
+  + filter?: string[] | `[] (none)`
   
     List of process to exclude.<br/>
-    eg: ["firefox.exe", "chrome.exe", ...]<br/>
+    eg: ["firefox.exe", "chrome.exe", ...]
     
-  - whitelist | boolean (_default false_)
+  + whitelist?: boolean | `false`
 
 	  Turn the above filter option into a whitelist instead of a blacklist.<br/>
     Only the process from the list will be allowed.
 
-⚠️ NB: `There are limits to the number of AND and OR keywords that can be used in WQL queries. Large numbers of WQL keywords used in a complex query can cause WMI to return WBEM_E_QUOTA_VIOLATION. The limit of WQL keywords depends on how complex the query is`<br/>
-	cf: https://docs.microsoft.com/en-us/windows/win32/wmisdk/querying-with-wql<br/>
-	When you are using the `filter` option with a huge list consider implementing your own filter on top of the event emitter result instead.
+    ⚠ ️There is a hard limit to the number of elements you can filter depending on how complex the query is which will cause WMI to return `WBEM_E_QUOTA_VIOLATION`.
 
-=> Return a non-blocking async event emitter ([emittery](https://github.com/sindresorhus/emittery)):
+    💡 In such case consider implementing your own filter on top of the event emitter result instead.
+
+</details>
+
+**Return**
+
+Returns a non-blocking async event emitter ([emittery](https://github.com/sindresorhus/emittery)):
 
 ```ts
 .on(event: "creation | deletion", ([
@@ -131,9 +142,9 @@ WQL.createEventSink() //Promise
 ]) => {})
 ```
 
-⚠️ NB: `filepath` and/or `user` _might_ be empty if you don't have the permission to access a process information.
+⚠️ `filepath` and/or `user` _might_ be empty if you don't have the permission to access the corresponding process information.
 
-💡 Don't forget to keep the node.js event loop alive.
+💡 NB: Don't forget to keep the node.js event loop alive.
 
 ### `createEventSink(): void`
 
@@ -145,11 +156,13 @@ If the event sink is already initialized then nothing will be done.
 Method was merely kept for backward compatibility.
 
 ⚠️ If your application (the caller thread) is initializing a COM library you need to set the thread model to [COINIT_MULTITHREADED](https://docs.microsoft.com/en-us/windows/win32/api/combaseapi/nf-combaseapi-coinitializeex)
-For this reason using this in Electron's main process isn't viable. If you really need to use Electron's main process; I suggest that you either
-- fork a node child process or
-- use web workers or
-- use a hidden browser window and communicate between the main process and background window via Electron's IPC.
 
+NB: For this reason using this in Electron's main process isn't viable. Workarounds are in no particular preference order:
+
+- fork a child process via `utilityProcess`
+- fork a regular node child process
+- use web workers
+- use a hidden browser window with node integration and communicate between the main process and background window via IPC.
 
 ### `closeEventSink(): void`
 
@@ -157,3 +170,5 @@ For this reason using this in Electron's main process isn't viable. If you reall
 There is no 'un-subscribe' thing to do prior to closing the sink. Just close it.<br/>
 It is recommended to properly close the event sink when you are done if you intend to re-open it later on.<br/>
 Most of the time you wouldn't have to bother with this but it's here in case you need it.
+
+NB: This method will also remove every event listener.

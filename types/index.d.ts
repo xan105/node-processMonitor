@@ -10,8 +10,6 @@ declare interface Option {
   bin?: Filter
 }
 
-export function createEventSink(): void
-export function closeEventSink(): void
-export function subscribe(option?: Option): any
-
-export * as promises from "./promises.d.ts"
+export function createEventSink(): Promise<void>
+export function closeEventSink(): Promise<void>
+export function subscribe(option?: Option): Promise<any>

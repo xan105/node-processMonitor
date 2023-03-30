@@ -1,3 +1,5 @@
 node_modules/
-lib/src/**/*.tlog/
-lib/src/**/*.log
+lib/src/**/*
+!lib/src/**/*.cpp
+!lib/src/**/*.h
+!lib/src/**/*.sln
