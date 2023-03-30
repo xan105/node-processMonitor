@@ -12,4 +12,5 @@ declare interface Option {
 
 export function createEventSink(): Promise<void>
 export function closeEventSink(): Promise<void>
-export function subscribe(option?: Option): Promise<any>
+export function subscribe(option?: Option): Promise<EventEmitter<Record<PropertyKey, any>, Record<PropertyKey, any> & import("emittery").OmnipresentEventData, import("emittery").DatalessEventNames<Record<PropertyKey, any>>>>;
+import EventEmitter from "emittery";

@@ -3,3 +3,4 @@ lib/src/
 test/
 screenshot/
 .eslintrc.json
+tsconfig.json

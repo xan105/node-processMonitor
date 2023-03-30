@@ -58,7 +58,7 @@ Installation
 npm install wql-process-monitor
 ```
 
-Prerequisite: C/C++ build tools (Visual Studio) and Python 3.x (node-gyp) in order to build [node-ffi-napi](https://www.npmjs.com/package/ffi-napi).
+Prerequisite: C/C++ build tools (Visual Studio) and Python 3.x (node-gyp) in order to build [koffi](https://www.npmjs.com/package/koffi).
 
 API
 ===
@@ -82,9 +82,20 @@ Subscribe to an operation event. You must at least choose one.
 
 	Subscribe to the deletion event.
 
-- dir
+- dir?: object
 
 <details><summary>Filter options via path:</summary>
+
+    ⚠️ When filtering by executable path you won't be able to catch any elevated process event. Unless you are also elevated. 
+    This is a Windows permission issue: 
+    
+    WMI `executablePath` requires `SeDebugPrivilege` permission in this case. This token is automatically granted when running with admin privileges. You can set this permission for regular user via group policy but this is considered as a security risk. 
+    NB: Please be advised that this library doesn't try to adjust token privilege.
+
+    ⚠️ There is a hard limit to the number of elements you can filter depending on how complex the query is
+    which will cause WMI to return `WBEM_E_QUOTA_VIOLATION`.
+
+    💡 In such cases consider implementing your own filter on top of the event emitter result instead.
 
   + filter?: string[] | `[] (none)`
   
@@ -95,24 +106,17 @@ Subscribe to an operation event. You must at least choose one.
 
     Turn the above filter option into a whitelist instead of a blacklist.<br/>
     Only the events originating from the list will be allowed.
-    
-    ⚠️ When filtering by executable path you won't be able to catch any elevated process event. Unless you are also elevated. 
-    This is a Windows permission issue: 
-    
-    WMI `executablePath` requires `SeDebugPrivilege` permission in this case. This token is automatically granted when running with admin privileges. You can set this permission for regular user via group policy but this is considered a security risk. 
-    NB: Please be advised that this library doesn't try to adjust token privilege.
-
-    ⚠️ There is a hard limit to the number of elements you can filter depending on how complex the query is
-    which will cause WMI to return `WBEM_E_QUOTA_VIOLATION`.
-
-    💡 In such cases consider implementing your own filter on top of the event emitter result instead.
 
 </details>
   
-- bin
+- bin?: object
 
 <details><summary>Filter options via name:</summary>
 
+    ⚠ ️There is a hard limit to the number of elements you can filter depending on how complex the query is which will cause WMI to return `WBEM_E_QUOTA_VIOLATION`.
+
+    💡 In such case consider implementing your own filter on top of the event emitter result instead.
+  
   + filter?: string[] | `[] (none)`
   
     List of process to exclude.<br/>
@@ -122,10 +126,6 @@ Subscribe to an operation event. You must at least choose one.
 
 	  Turn the above filter option into a whitelist instead of a blacklist.<br/>
     Only the process from the list will be allowed.
-
-    ⚠ ️There is a hard limit to the number of elements you can filter depending on how complex the query is which will cause WMI to return `WBEM_E_QUOTA_VIOLATION`.
-
-    💡 In such case consider implementing your own filter on top of the event emitter result instead.
 
 </details>
 
@@ -146,7 +146,7 @@ Returns a non-blocking async event emitter ([emittery](https://github.com/sindre
 
 💡 NB: Don't forget to keep the node.js event loop alive.
 
-### `createEventSink(): void`
+### `createEventSink(): Promise<void>`
 
 Initialize the event sink.<br/>
 This is required to do before you can subscribe to any events.<br/>
@@ -164,10 +164,10 @@ NB: For this reason using this in Electron's main process isn't viable. Workarou
 - use web workers
 - use a hidden browser window with node integration and communicate between the main process and background window via IPC.
 
-### `closeEventSink(): void`
+### `closeEventSink(): Promise<void>`
 
 **Properly** close the event sink.<br/>
-There is no 'un-subscribe' thing to do prior to closing the sink. Just close it.<br/>
+There is no "un-subscribe" thing to do prior to closing the sink. Just close it.<br/>
 It is recommended to properly close the event sink when you are done if you intend to re-open it later on.<br/>
 Most of the time you wouldn't have to bother with this but it's here in case you need it.
 
