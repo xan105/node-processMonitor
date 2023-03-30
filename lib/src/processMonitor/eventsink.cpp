@@ -69,7 +69,7 @@ HRESULT EventSink::Indicate(long lObjectCount, IWbemClassObject **apObjArray)
 				if (SUCCEEDED(hr))
 				{
 					_variant_t cn;
-					_bstr_t process;
+					_bstr_t process, execPath;
 					DWORD pid = 0; //System Idle Process
 					std::string filepath;
 					std::string user = "SYSTEM";
@@ -80,6 +80,14 @@ HRESULT EventSink::Indicate(long lObjectCount, IWbemClassObject **apObjArray)
 
 					hr = apObjArray[i]->Get(L"Handle", 0, &cn, NULL, NULL);
 					if (SUCCEEDED(hr) && !(cn.vt == VT_NULL || cn.vt == VT_EMPTY)) { pid = cn; }
+					VariantClear(&cn);
+
+					hr = apObjArray[i]->Get(L"ExecutablePath", 0, &cn, NULL, NULL);
+					if (SUCCEEDED(hr) && !(cn.vt == VT_NULL || cn.vt == VT_EMPTY)) { 
+						execPath = cn.bstrVal; 
+						filepath = execPath;
+					}
+					VariantClear(&cn);
 
 					//Additional info with WINAPI instead of WMI (permission)
 					if (event == "creation") //OpenProcess() a deleted process doesn't make much sense
@@ -88,13 +96,15 @@ HRESULT EventSink::Indicate(long lObjectCount, IWbemClassObject **apObjArray)
 						processHandle = OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, FALSE, pid);
 						if (processHandle != NULL)
 						{
-							//Get path
-							//This is more "reliable" permission wise than WMI executablePath 
-							DWORD Size = MAX_PATH;
-							wchar_t processpath[MAX_PATH];
+							if (filepath.empty()) {
+								//Get path
+								//This is more "reliable" permission wise than WMI "executablePath" 
+								DWORD Size = MAX_PATH;
+								wchar_t processpath[MAX_PATH];
 
-							if (QueryFullProcessImageName(processHandle, 0, processpath, &Size)) {
-								filepath = wstringToString(std::wstring(processpath));
+								if (QueryFullProcessImageName(processHandle, 0, processpath, &Size)) {
+									filepath = wstringToString(std::wstring(processpath));
+								}
 							}
 
 							//Get user

@@ -32,7 +32,7 @@ class WQL
     long init()
     {
       if (!this->isReady) {
-
+          
         // Step 1: Initialize COM.
 
         this->hres = CoInitializeEx(0, COINIT_MULTITHREADED);

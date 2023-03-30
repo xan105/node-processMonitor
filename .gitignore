@@ -3,3 +3,5 @@ lib/src/**/*
 !lib/src/**/*.cpp
 !lib/src/**/*.h
 !lib/src/**/*.sln
+!lib/src/**/*.vcxproj
+!lib/src/**/*.vcxproj.*
