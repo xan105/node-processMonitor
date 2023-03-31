@@ -1,27 +1,22 @@
 {
   "name": "wql-process-monitor",
-  "version": "2.2.0",
+  "version": "3.0.0",
   "description": "Monitor Windows process creation/deletion events",
   "type": "module",
   "exports": {
     ".": {
       "types": "./types/index.d.ts",
       "default": "./lib/index.js"
-    },
-    "./promises": {
-      "types": "./types/promises.d.ts",
-      "default": "./lib/promises.js"
     }
   },
   "types": "./types/index.d.ts",
-  "os": [
-    "win32"
-  ],
   "engines": {
     "node": ">=16.0.0"
   },
   "scripts": {
-    "lint": "npx eslint --ignore-path .gitignore \"./**/*.{js,mjs}\""
+    "lint": "npx eslint --ignore-path .gitignore \"./**/*.{js,mjs}\"",
+    "check": "tsc --noemit --checkjs",
+    "declare": "tsc --declaration --emitDeclarationOnly --outDir \"./types\""
   },
   "keywords": [
     "windows",
@@ -63,12 +58,16 @@
   ],
   "dependencies": {
     "@xan105/error": "^1.6.0",
-    "@xan105/ffi": "^0.5.1",
+    "@xan105/ffi": "^0.7.0",
     "@xan105/is": "^2.8.1",
     "emittery": "^1.0.1",
-    "ffi-napi": "^4.0.3"
+    "koffi": "^2.3.13"
   },
   "devDependencies": {
-    "eslint": "^8.36.0"
+    "@types/node": "^18.15.11",
+    "@typescript-eslint/eslint-plugin": "^5.57.0",
+    "@typescript-eslint/parser": "^5.57.0",
+    "eslint": "^8.36.0",
+    "typescript": "^5.0.2"
   }
 }
