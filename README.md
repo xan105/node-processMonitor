@@ -84,8 +84,18 @@ Subscribe to an operation event. You must at least choose one.
 
 - dir?: object
 
-<details><summary>Filter options via path:</summary>
+<details><summary>Filter via path:</summary>
 
+  + filter?: string[] | `[] (none)`
+  
+    Exclude events originating from a list of path(s). This can be a full path or a part of it.<br/>
+    Path separator can either be `/` (Unix) or `\\` (Windows).
+    
+  + whitelist?: boolean | `false`
+
+    Turn the above filter option into a whitelist instead of a blacklist.<br/>
+    Only the events originating from the list will be allowed.
+    
     ⚠️ When filtering by executable path you won't be able to catch any elevated process event. Unless you are also elevated. 
     This is a Windows permission issue: 
     
@@ -97,26 +107,12 @@ Subscribe to an operation event. You must at least choose one.
 
     💡 In such cases consider implementing your own filter on top of the event emitter result instead.
 
-  + filter?: string[] | `[] (none)`
-  
-    Exclude events originating from a list of path(s). This can be a full path or a part of it.<br/>
-    Path separator can either be `/` (Unix) or `\\` (Windows).
-    
-  + whitelist?: boolean | `false`
-
-    Turn the above filter option into a whitelist instead of a blacklist.<br/>
-    Only the events originating from the list will be allowed.
-
 </details>
   
 - bin?: object
 
-<details><summary>Filter options via name:</summary>
+<details><summary>Filter via name:</summary>
 
-    ⚠ ️There is a hard limit to the number of elements you can filter depending on how complex the query is which will cause WMI to return `WBEM_E_QUOTA_VIOLATION`.
-
-    💡 In such case consider implementing your own filter on top of the event emitter result instead.
-  
   + filter?: string[] | `[] (none)`
   
     List of process to exclude.<br/>
@@ -126,6 +122,10 @@ Subscribe to an operation event. You must at least choose one.
 
 	  Turn the above filter option into a whitelist instead of a blacklist.<br/>
     Only the process from the list will be allowed.
+    
+    ⚠ ️There is a hard limit to the number of elements you can filter depending on how complex the query is which will cause WMI to return `WBEM_E_QUOTA_VIOLATION`.
+
+    💡 In such case consider implementing your own filter on top of the event emitter result instead.
 
 </details>
 
