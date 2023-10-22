@@ -57,17 +57,17 @@
     }
   ],
   "dependencies": {
-    "@xan105/error": "^1.6.0",
-    "@xan105/ffi": "^0.7.0",
-    "@xan105/is": "^2.8.1",
+    "@xan105/error": "^1.6.1",
+    "@xan105/ffi": "^1.0.0",
+    "@xan105/is": "^2.8.2",
     "emittery": "^1.0.1",
-    "koffi": "^2.3.13"
+    "koffi": "^2.6.1"
   },
   "devDependencies": {
-    "@types/node": "^18.15.11",
-    "@typescript-eslint/eslint-plugin": "^5.57.0",
-    "@typescript-eslint/parser": "^5.57.0",
-    "eslint": "^8.36.0",
-    "typescript": "^5.0.2"
+    "@types/node": "^20.8.7",
+    "@typescript-eslint/eslint-plugin": "^6.8.0",
+    "@typescript-eslint/parser": "^6.8.0",
+    "eslint": "^8.52.0",
+    "typescript": "^5.2.2"
   }
 }
