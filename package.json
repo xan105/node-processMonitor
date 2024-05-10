@@ -57,11 +57,11 @@
     }
   ],
   "dependencies": {
-    "@xan105/error": "^1.6.1",
-    "@xan105/ffi": "^1.0.0",
-    "@xan105/is": "^2.8.2",
+    "@xan105/error": "^1.6.2",
+    "@xan105/ffi": "^1.1.0",
+    "@xan105/is": "^2.9.3",
     "emittery": "^1.0.1",
-    "koffi": "^2.6.1"
+    "koffi": "^2.6.10"
   },
   "devDependencies": {
     "@types/node": "^20.8.7",
